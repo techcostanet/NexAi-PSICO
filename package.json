@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "git:sync": "git add -A && git commit -m \"sync: automatic deploy backup to github\" && git push origin main",
+    "deploy": "npm run build && git add -A && git commit -m \"deploy: automatic backup and release\" && git push origin main"
   },
   "dependencies": {
     "clsx": "^2.1.1",
