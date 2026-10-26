@@ -1,0 +1,67 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Funções auxiliares de validação de papéis
+    function estaAutenticado() {
+      return request.auth != null;
+    }
+    
+    function getUserData() {
+      return get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data;
+    }
+    
+    function isAdmin() {
+      return estaAutenticado() && getUserData().role == 'admin';
+    }
+    
+    function isProfissionalSaude() {
+      return estaAutenticado() && (getUserData().role == 'medico' || getUserData().role == 'psicologo' || getUserData().role == 'admin');
+    }
+    
+    function isRecepcao() {
+      return estaAutenticado() && (getUserData().role == 'recepcao' || isProfissionalSaude());
+    }
+
+    // 1. Coleção Usuários
+    match /usuarios/{usuarioId} {
+      allow read: if estaAutenticado();
+      allow write: if isAdmin();
+    }
+
+    // 2. Coleção Pacientes (Dados Cadastrais)
+    match /pacientes/{pacienteId} {
+      // Recepção e Médicos podem ler e cadastrar pacientes
+      allow read, create, update: if isRecepcao();
+      allow delete: if isAdmin();
+
+      // 3. SUBCOLEÇÃO PRONTUÁRIOS (Dados Clínicos Sensíveis)
+      // ⚠️ BLOQUEIO TOTAL PARA RECEPÇÃO
+      match /prontuarios/{prontuarioId} {
+        allow read, write: if isProfissionalSaude();
+      }
+
+      // 4. SUBCOLEÇÃO ANAMNESE
+      match /anamnese/{anamneseId} {
+        allow read, write: if isProfissionalSaude();
+      }
+    }
+
+    // 5. Coleção Agendamentos
+    match /agendamentos/{agendamentoId} {
+      allow read, write: if isRecepcao();
+    }
+
+    // 6. Coleção Financeiro
+    match /financeiro/{transacaoId} {
+      allow read, write: if isRecepcao();
+    }
+
+    // 7. Logs de Auditoria (Apenas gravação ou leitura de Admin)
+    match /logs_auditoria/{logId} {
+      allow create: if estaAutenticado();
+      allow read: if isAdmin();
+      allow update, delete: if false; // Imutável
+    }
+  }
+}

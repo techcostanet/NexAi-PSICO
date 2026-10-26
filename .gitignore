@@ -1,0 +1,36 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Dependencies
+node_modules/
+functions/node_modules/
+functions/lib/
+
+# Production build outputs
+dist/
+dist-ssr/
+*.local
+
+# Firebase
+.firebase/
+firebase-debug.log*
+firestore-debug.log*
+ui-debug.log*
+
+# Environment & Secrets (prevenção de bloqueio pelo GitHub Secret Scanning)
+.env
+.env.local
+.env.*.local
+serviceAccountKey.json
+*-credentials.json
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
