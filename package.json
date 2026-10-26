@@ -7,8 +7,9 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "git:sync": "git add -A && git commit -m \"sync: automatic deploy backup to github\" && git push origin main",
-    "deploy": "npm run build && git add -A && git commit -m \"deploy: automatic backup and release\" && git push origin main"
+    "deploy:hosting": "npm run build && npx -y firebase-tools deploy --only hosting",
+    "deploy": "npm run build && npx -y firebase-tools deploy --only hosting,firestore:rules && git add -A && git commit -m \"deploy: automatic release to Google Firebase & GitHub backup\" && git push origin main",
+    "git:sync": "git add -A && git commit -m \"sync: automatic backup to github\" && git push origin main"
   },
   "dependencies": {
     "clsx": "^2.1.1",
