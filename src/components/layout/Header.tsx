@@ -2,6 +2,7 @@ import React from 'react';
 import { Camera, Brain, Activity, Sparkles, FolderSync, Heart } from 'lucide-react';
 import { RoleSwitcher } from './RoleSwitcher';
 import { Button } from '../ui/Button';
+import { APP_VERSION } from '../../version';
 
 interface HeaderProps {
   onOpenScanner: () => void;
@@ -33,6 +34,9 @@ export const Header: React.FC<HeaderProps> = ({
                 </span>
                 <span className="text-[10px] bg-brand-500/10 text-brand-600 dark:text-brand-300 font-semibold px-1.5 py-0.5 rounded-md border border-brand-500/20 flex items-center gap-0.5">
                   <Sparkles className="w-2.5 h-2.5" /> IA
+                </span>
+                <span className="text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-mono font-medium px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700" title={`Versão ativa: v${APP_VERSION}`}>
+                  v{APP_VERSION}
                 </span>
               </div>
               <p className="text-[10px] text-slate-400 hidden sm:block">Gestão Clínica, Prontuário IA & Google Cloud</p>
