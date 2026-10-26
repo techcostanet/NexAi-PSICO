@@ -9,8 +9,12 @@ import {
   FileText,
   ShieldAlert,
   Heart,
+  Lock,
+  ShieldCheck,
+  ChevronRight,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useSaasPlan, SaasModulesState } from '../../context/SaasPlanContext';
 
 interface NavigationProps {
   currentView: string;
@@ -19,9 +23,21 @@ interface NavigationProps {
 }
 
 export const Navigation: React.FC<NavigationProps> = ({ currentView, onNavigate, onOpenSettings }) => {
-  const { canViewClinicalData, currentUser } = useAuth();
+  const { canViewClinicalData } = useAuth();
+  const { modules, openUpsellModal } = useSaasPlan();
 
-  const navItems = [
+  interface NavItem {
+    id: string;
+    label: string;
+    icon: React.ComponentType<{ className?: string }>;
+    roles: string[];
+    badge?: string;
+    clinicalOnly?: boolean;
+    moduleKey?: keyof SaasModulesState;
+    isLocked?: boolean;
+  }
+
+  const navItems: NavItem[] = [
     {
       id: 'dashboard',
       label: 'Visão Geral',
@@ -45,22 +61,28 @@ export const Navigation: React.FC<NavigationProps> = ({ currentView, onNavigate,
       label: 'Diário do Paciente',
       icon: Heart,
       roles: ['admin', 'medico', 'psicologo', 'recepcao'],
-      badge: 'Diário',
+      badge: modules.diarioHumor ? 'Ativo' : 'Opcional',
+      moduleKey: 'diarioHumor',
+      isLocked: !modules.diarioHumor,
     },
     {
       id: 'scanner',
       label: 'Scanner de Fichas',
       icon: Camera,
       roles: ['admin', 'medico', 'psicologo', 'recepcao'],
-      badge: 'Digitalização',
+      badge: modules.scannerFichas ? 'Ativo' : 'Opcional',
+      moduleKey: 'scannerFichas',
+      isLocked: !modules.scannerFichas,
     },
     {
       id: 'consulta',
       label: 'Consulta IA',
       icon: Mic,
       roles: ['admin', 'medico', 'psicologo'],
-      badge: 'Gemini SOAP',
+      badge: modules.consultaIa ? 'Gemini SOAP' : 'Opcional',
       clinicalOnly: true,
+      moduleKey: 'consultaIa',
+      isLocked: !modules.consultaIa,
     },
     {
       id: 'prontuarios',
@@ -92,36 +114,53 @@ export const Navigation: React.FC<NavigationProps> = ({ currentView, onNavigate,
             return (
               <button
                 key={item.id}
-                onClick={() => !isRestricted && onNavigate(item.id)}
+                onClick={() => {
+                  if (item.isLocked && item.moduleKey) {
+                    openUpsellModal(item.moduleKey);
+                    return;
+                  }
+                  if (!isRestricted) {
+                    onNavigate(item.id);
+                  }
+                }}
                 disabled={isRestricted}
                 className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl font-medium text-sm transition-all duration-200 ${
                   isActive
                     ? 'bg-brand-600 text-white shadow-sm shadow-brand-500/30'
                     : isRestricted
                     ? 'text-slate-300 dark:text-slate-700 cursor-not-allowed opacity-60'
+                    : item.isLocked
+                    ? 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60'
                     : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
                 <div className="flex items-center gap-3">
-                  <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-slate-500 dark:text-slate-400'}`} />
-                  <span>{item.label}</span>
+                  <Icon className={`w-4 h-4 ${isActive ? 'text-white' : item.isLocked ? 'text-amber-500' : 'text-slate-500 dark:text-slate-400'}`} />
+                  <span className={item.isLocked ? 'text-slate-600 dark:text-slate-300' : ''}>{item.label}</span>
                 </div>
-                {item.badge && (
-                  <span
-                    className={`text-[10px] px-1.5 py-0.5 rounded-md font-semibold ${
-                      isActive
-                        ? 'bg-brand-700 text-white'
-                        : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300'
-                    }`}
-                  >
-                    {item.badge}
-                  </span>
-                )}
-                {isRestricted && (
-                  <span title="Restrito a Médicos/Psicólogos (LGPD)">
-                    <ShieldAlert className="w-3.5 h-3.5 text-slate-400" />
-                  </span>
-                )}
+                <div className="flex items-center gap-1.5">
+                  {item.isLocked && (
+                    <Lock className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" />
+                  )}
+                  {item.badge && (
+                    <span
+                      className={`text-[10px] px-1.5 py-0.5 rounded-md font-semibold ${
+                        isActive
+                          ? 'bg-brand-700 text-white'
+                          : item.isLocked
+                          ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-800'
+                          : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300'
+                      }`}
+                    >
+                      {item.badge}
+                    </span>
+                  )}
+                  {isRestricted && (
+                    <span title="Restrito a Médicos e Psicólogos">
+                      <ShieldAlert className="w-3.5 h-3.5 text-slate-400" />
+                    </span>
+                  )}
+                </div>
               </button>
             );
           })}
@@ -135,6 +174,18 @@ export const Navigation: React.FC<NavigationProps> = ({ currentView, onNavigate,
             <span>⚙️ Integrações Google</span>
           </button>
         )}
+
+        {/* Botão de Acesso ao Painel SaaS Master */}
+        <button
+          onClick={() => onNavigate('saas_admin')}
+          className="mt-2 w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-amber-700 dark:text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 transition-all"
+        >
+          <div className="flex items-center gap-2">
+            <ShieldCheck className="w-4 h-4 text-amber-500" />
+            <span>Painel SaaS Master</span>
+          </div>
+          <ChevronRight className="w-3.5 h-3.5 text-amber-400" />
+        </button>
       </div>
 
       {/* Box de Ajuda Rápida / Estratégia de Transição */}
