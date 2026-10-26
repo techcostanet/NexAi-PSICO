@@ -109,7 +109,7 @@ export const App: React.FC = () => {
             />
           )}
 
-          {/* 2. Agenda & Recepção */}
+          {/* 2. Agenda */}
           {currentView === 'agenda' && (
             <ScheduleCalendar
               onSelectPaciente={handleSelectPaciente}
@@ -184,7 +184,7 @@ export const App: React.FC = () => {
             </div>
           )}
 
-          {/* 7. Módulo Financeiro & Recibos */}
+          {/* 7. Módulo Financeiro */}
           {currentView === 'financeiro' && <FinancialDashboard />}
 
         </main>
@@ -201,7 +201,7 @@ export const App: React.FC = () => {
         onOpenConsultation={() => handleOpenConsultation()}
       />
 
-      {/* Modal de Consulta com Áudio IA */}
+      {/* Modal de Consulta IA */}
       <ConsultationSessionModal
         isOpen={isConsultationModalOpen}
         onClose={() => setIsConsultationModalOpen(false)}
@@ -212,7 +212,7 @@ export const App: React.FC = () => {
         }}
       />
 
-      {/* Modal de Integrações Google & Backup */}
+      {/* Modal de Integrações Google */}
       <GoogleIntegrationsModal
         isOpen={isSettingsModalOpen}
         onClose={() => setIsSettingsModalOpen(false)}

@@ -166,7 +166,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
             R$ {totalFaturado.toFixed(0)}
           </div>
           <p className="text-[11px] text-emerald-600 mt-1 flex items-center gap-1 font-medium">
-            Recibos & IRPF <ArrowRight className="w-3 h-3" />
+            Recibos <ArrowRight className="w-3 h-3" />
           </p>
         </Card>
 

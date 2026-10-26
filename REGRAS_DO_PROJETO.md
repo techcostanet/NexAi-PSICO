@@ -1,6 +1,6 @@
 # 📜 Regras de Desenvolvimento e Operação - NexAi-PSICO
 
-Este documento consolida as 3 regras mestras do projeto **NexAi-PSICO**. Todos os commits, deploys e atualizações de código devem obedecer a estas diretrizes.
+Este documento consolida as 4 regras mestras do projeto **NexAi-PSICO**. Todos os commits, deploys e atualizações de código devem obedecer a estas diretrizes.
 
 ---
 
@@ -32,6 +32,13 @@ Este documento consolida as 3 regras mestras do projeto **NexAi-PSICO**. Todos o
 
 ---
 
+### 4️⃣ REGRA 4: Vocabulário Único e UX Limpo (Proibido Termos Duplos com '&' ou '/')
+- **Sem Termos Compostos**: Proibido colocar 2 termos ou palavras para o mesmo campo, botão, aba ou menu unidos por `&` ou `/`.
+- **Despoluição Visual do UX**: Textos como "Visão Geral & Métricas", "Agenda & Recepção" ou "Validar & Assinar" sobrecarregam a cognição visual do profissional.
+- **Termo Único e Direto**: Cada campo, ação ou tela deve possuir uma identificação única, concisa, elegante e profissional.
+
+---
+
 ### 🛠️ Comandos Disponíveis:
 
 ```bash
@@ -39,5 +46,5 @@ Este documento consolida as 3 regras mestras do projeto **NexAi-PSICO**. Todos o
 npm run deploy
 
 # Opcional: passar mensagem descritiva do que foi alterado:
-node scripts/release.js "correcao no modulo de prontuarios"
+npm run deploy -- "aplicacao da regra de vocabulario unico e remocao de termos duplos"
 ```

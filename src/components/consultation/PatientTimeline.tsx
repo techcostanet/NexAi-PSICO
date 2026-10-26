@@ -150,7 +150,7 @@ export const PatientTimeline: React.FC<PatientTimelineProps> = ({
           }`}
         >
           <Calendar className="w-4 h-4" />
-          <span>Linha do Tempo & Consultas ({prontuarios.length})</span>
+          <span>Consultas ({prontuarios.length})</span>
         </button>
 
         <button
@@ -162,7 +162,7 @@ export const PatientTimeline: React.FC<PatientTimelineProps> = ({
           }`}
         >
           <Heart className="w-4 h-4 text-teal-400" />
-          <span>Diário de Emoções & Humor</span>
+          <span>Diário de Emoções</span>
           <span className="bg-teal-500 text-white text-[10px] font-mono px-2 py-0.5 rounded-full">
             {emocoes.length}
           </span>
@@ -318,7 +318,7 @@ export const PatientTimeline: React.FC<PatientTimelineProps> = ({
                             {/* Plano Terapêutico */}
                             <div className="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl">
                               <span className="font-bold text-emerald-700 dark:text-emerald-300 block mb-1">
-                                [P] Plano & Conduta:
+                                [P] Plano Terapêutico:
                               </span>
                               <p className="text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-line">
                                 {reg.conteudoClinico.planoTerapeutico}

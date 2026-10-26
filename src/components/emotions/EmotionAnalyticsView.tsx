@@ -120,7 +120,7 @@ export const EmotionAnalyticsView: React.FC<EmotionAnalyticsViewProps> = ({
       const principaisGatilhos = gatilhosOrdenados.map(([g]) => g).join(', ');
       const nomeCurto = paciente.nomeCompleto.split(' ')[0];
 
-      let sintese = `**Síntese Tímica & Padrões Emocionais (${totalRegistros} registros analisados)**\n\n`;
+      let sintese = `**Síntese Tímica (${totalRegistros} registros analisados)**\n\n`;
       sintese += `• **Oscilação do Humor:** Média de ${mediaHumor}/5.0 no período inter-sessões. O paciente demonstrou oscilação com picos positivos associados a momentos de lazer/sono adequado, intercalados com episódios de sobrecarga.\n`;
       sintese += `• **Gatilhos Preponderantes:** As maiores associações registradas foram: ${principaisGatilhos || 'Trabalho e Rotina'}.\n`;
       

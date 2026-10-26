@@ -24,13 +24,13 @@ export const Navigation: React.FC<NavigationProps> = ({ currentView, onNavigate,
   const navItems = [
     {
       id: 'dashboard',
-      label: 'Visão Geral & Métricas',
+      label: 'Visão Geral',
       icon: LayoutDashboard,
       roles: ['admin', 'medico', 'psicologo', 'recepcao'],
     },
     {
       id: 'agenda',
-      label: 'Agenda & Recepção',
+      label: 'Agenda',
       icon: Calendar,
       roles: ['admin', 'medico', 'psicologo', 'recepcao'],
     },
@@ -42,21 +42,21 @@ export const Navigation: React.FC<NavigationProps> = ({ currentView, onNavigate,
     },
     {
       id: 'portal_paciente',
-      label: 'App do Paciente (PWA)',
+      label: 'Diário do Paciente',
       icon: Heart,
       roles: ['admin', 'medico', 'psicologo', 'recepcao'],
-      badge: 'Diário & Humor',
+      badge: 'Diário',
     },
     {
       id: 'scanner',
-      label: 'Scanner de Fichas (Drive)',
+      label: 'Scanner de Fichas',
       icon: Camera,
       roles: ['admin', 'medico', 'psicologo', 'recepcao'],
-      badge: 'Passivo 1.500',
+      badge: 'Digitalização',
     },
     {
       id: 'consulta',
-      label: 'Consulta com Áudio IA',
+      label: 'Consulta IA',
       icon: Mic,
       roles: ['admin', 'medico', 'psicologo'],
       badge: 'Gemini SOAP',
@@ -64,14 +64,14 @@ export const Navigation: React.FC<NavigationProps> = ({ currentView, onNavigate,
     },
     {
       id: 'prontuarios',
-      label: 'Prontuários & Timeline',
+      label: 'Prontuários',
       icon: FileText,
       roles: ['admin', 'medico', 'psicologo'],
       clinicalOnly: true,
     },
     {
       id: 'financeiro',
-      label: 'Financeiro & Recibos',
+      label: 'Financeiro',
       icon: Receipt,
       roles: ['admin', 'medico', 'psicologo', 'recepcao'],
     },
@@ -132,7 +132,7 @@ export const Navigation: React.FC<NavigationProps> = ({ currentView, onNavigate,
             onClick={onOpenSettings}
             className="mt-3 w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
           >
-            <span>⚙️ Integrações Google & Backup</span>
+            <span>⚙️ Integrações Google</span>
           </button>
         )}
       </div>

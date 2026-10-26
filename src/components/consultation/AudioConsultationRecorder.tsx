@@ -145,14 +145,14 @@ export const AudioConsultationRecorder: React.FC<AudioConsultationRecorderProps>
           </div>
           <div>
             <h3 className="text-sm font-bold text-slate-900 dark:text-white">
-              Gravação de Voz & Inteligência Artificial (Google Gemini Flash)
+              Gravação de Consulta com IA (Google Gemini)
             </h3>
             <p className="text-[11px] text-slate-500 dark:text-slate-400">
               Gera automaticamente o formato clínico SOAP a partir da conversa ou do ditado médico.
             </p>
           </div>
         </div>
-        <Badge variant="brand" dot>Gemini 1.5 / 2.0 Flash</Badge>
+        <Badge variant="brand" dot>Gemini Flash</Badge>
       </div>
 
       {/* Caixa Central do Gravador */}

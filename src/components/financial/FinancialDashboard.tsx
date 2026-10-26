@@ -101,9 +101,9 @@ export const FinancialDashboard: React.FC = () => {
         <div>
           <div className="flex items-center gap-2">
             <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-              Gestão Financeira & Recibos
+              Gestão Financeira
             </h2>
-            <Badge variant="success">DMED / IRPF Pronto</Badge>
+            <Badge variant="success">Declaração DMED</Badge>
           </div>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
             Controle de pagamentos por consulta (Pix, Cartão, Dinheiro) e emissão de recibos médicos em PDF.
@@ -125,7 +125,7 @@ export const FinancialDashboard: React.FC = () => {
         <Card className="p-5 bg-gradient-to-br from-emerald-500/10 to-teal-500/5 border-emerald-200 dark:border-emerald-900/40">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-emerald-800 dark:text-emerald-300">
-              Total Faturado & Recebido
+              Total Recebido
             </span>
             <div className="w-8 h-8 rounded-xl bg-emerald-100 dark:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 flex items-center justify-center">
               <TrendingUp className="w-4 h-4" />
@@ -175,7 +175,7 @@ export const FinancialDashboard: React.FC = () => {
             </span>
           </div>
           <p className="text-[11px] text-brand-600 dark:text-brand-400 mt-1">
-            Emitidos com CRM/CRP em PDF
+            Emitidos com Registro Profissional
           </p>
         </Card>
       </div>
@@ -184,7 +184,7 @@ export const FinancialDashboard: React.FC = () => {
       <Card className="p-0 overflow-hidden">
         <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <h3 className="text-sm font-bold text-slate-900 dark:text-white">
-            Histórico de Lançamentos & Recibos
+            Histórico de Lançamentos
           </h3>
 
           <div className="flex items-center gap-2 text-xs">

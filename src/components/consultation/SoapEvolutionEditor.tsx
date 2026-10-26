@@ -115,7 +115,7 @@ export const SoapEvolutionEditor: React.FC<SoapEvolutionEditorProps> = ({
                 S
               </span>
               <h4 className="text-sm font-bold text-slate-900 dark:text-white">
-                Subjetivo (Relato do Paciente & Queixa Principal)
+                Subjetivo (Relato do Paciente)
               </h4>
             </div>
             <textarea
@@ -153,7 +153,7 @@ export const SoapEvolutionEditor: React.FC<SoapEvolutionEditorProps> = ({
                 A
               </span>
               <h4 className="text-sm font-bold text-slate-900 dark:text-white">
-                Avaliação & Hipótese Diagnóstica (CID-10 / CID-11 / DSM-5)
+                Avaliação Diagnóstica (CID-10)
               </h4>
             </div>
             <input
@@ -172,7 +172,7 @@ export const SoapEvolutionEditor: React.FC<SoapEvolutionEditorProps> = ({
                 P
               </span>
               <h4 className="text-sm font-bold text-slate-900 dark:text-white">
-                Plano Terapêutico & Condutas
+                Plano Terapêutico
               </h4>
             </div>
             <textarea
@@ -190,7 +190,7 @@ export const SoapEvolutionEditor: React.FC<SoapEvolutionEditorProps> = ({
               <div className="flex items-center gap-2">
                 <Pill className="w-4 h-4 text-brand-600" />
                 <h4 className="text-sm font-bold text-slate-900 dark:text-white">
-                  Prescrição de Psicofármacos & Medicações Ativas ({soap.medicacoesPrescritas.length})
+                  Prescrição Médica ({soap.medicacoesPrescritas.length})
                 </h4>
               </div>
               <Button
@@ -302,7 +302,7 @@ export const SoapEvolutionEditor: React.FC<SoapEvolutionEditorProps> = ({
               isLoading={isSaving}
               className="shadow-md shadow-brand-500/20"
             >
-              Validar & Assinar Evolução Clínica
+              Assinar Evolução Clínica
             </Button>
           </div>
 

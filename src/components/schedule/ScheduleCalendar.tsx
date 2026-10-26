@@ -106,7 +106,7 @@ export const ScheduleCalendar: React.FC<ScheduleCalendarProps> = ({
         <div>
           <div className="flex items-center gap-2">
             <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-              Painel de Atendimentos & Recepção
+              Painel de Atendimentos
             </h2>
             <Badge variant="brand" dot>Google Calendar Sync</Badge>
           </div>

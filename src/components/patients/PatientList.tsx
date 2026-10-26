@@ -121,7 +121,7 @@ export const PatientList: React.FC<PatientListProps> = ({
         <div>
           <div className="flex items-center gap-2">
             <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-              Prontuários & Cadastro de Pacientes
+              Pacientes Cadastrados
             </h2>
             <Badge variant="brand">{pacientes.length} Cadastrados</Badge>
           </div>

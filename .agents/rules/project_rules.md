@@ -32,10 +32,7 @@ Para **toda e qualquer** correção, melhoria, ajuste, refatoração ou adição
 
 ---
 
-## Como Executar o Ciclo de Release:
-Utilizar o script automatizado:
-```bash
-npm run deploy
-# ou com mensagem personalizada:
-npm run deploy -- "descricao da alteracao realizada"
-```
+## REGRA 4: Vocabulário Único e UX Limpo (Proibido Termos Duplos com '&' ou '/')
+1. **Sem Termos Duplos no Mesmo Campo**: No sistema é terminantemente proibido ter 2 termos ou palavras para o mesmo campo, botão, aba, card, cabeçalho ou item de menu (ex: evitar `&` ou `/` agregando duas funções ou nomes).
+2. **UX Limpo e Despoluído**: Termos duplos deixam o visual e a experiência do usuário pesados e sobrecarregados.
+3. **Objetividade e Clareza**: Cada botão, link de menu ou campo do formulário deve ser nomeado com um único termo simples, elegante e direto.

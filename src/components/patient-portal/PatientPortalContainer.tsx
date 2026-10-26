@@ -232,7 +232,7 @@ export const PatientPortalContainer: React.FC<PatientPortalContainerProps> = ({
                   {pacienteAtivo.nomeCompleto}
                 </h3>
                 <p className="text-[11px] text-teal-600 dark:text-teal-400 flex items-center gap-1 mt-0.5">
-                  <ShieldCheck className="w-3.5 h-3.5" /> Diário Seguro & Sigiloso
+                  <ShieldCheck className="w-3.5 h-3.5" /> Diário Sigiloso
                 </p>
               </div>
 

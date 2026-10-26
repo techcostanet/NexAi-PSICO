@@ -320,7 +320,7 @@ export const PhysicalChartScanner: React.FC<PhysicalChartScannerProps> = ({
 
             <div>
               <h3 className="text-base font-bold text-slate-800 dark:text-white">
-                Modo Câmera Contínua do Celular / Scanner de Mesa
+                Câmera Contínua de Digitalização
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400 max-w-md mx-auto mt-1">
                 Bata fotos em sequência sem fechar o app. Ao clicar em finalizar, tudo vira 1 único arquivo PDF compacto enviado ao Google Drive.
@@ -421,7 +421,7 @@ export const PhysicalChartScanner: React.FC<PhysicalChartScannerProps> = ({
               onClick={handleFinalizarEEnviar}
               isLoading={isProcessing}
             >
-              Gerar PDF & Salvar no Google Drive
+              Salvar no Google Drive
             </Button>
           </div>
         </Card>

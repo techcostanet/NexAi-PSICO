@@ -110,7 +110,7 @@ export const GoogleIntegrationsModal: React.FC<GoogleIntegrationsModalProps> = (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Integrações Google & Configurações"
+      title="Integrações Google"
       subtitle="Configure suas chaves da nuvem Google diretamente pela interface"
       maxWidth="2xl"
     >
