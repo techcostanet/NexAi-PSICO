@@ -25,6 +25,7 @@ export interface Paciente {
   id: string;
   nomeCompleto: string;
   cpf: string;
+  fotoUrl?: string;
   dataNascimento: string;
   genero: 'M' | 'F' | 'Outro' | 'NaoInformado';
   telefone: string;
@@ -42,7 +43,7 @@ export interface Paciente {
   driveFolderUrl?: string;
   totalDocumentosScaneados: number;
   
-  // Módulo SaaS Diário de Emoções / Portal do Paciente
+  // Módulo Diário de Emoções / Portal do Paciente
   configuracaoDiario?: ConfiguracaoDiarioPaciente;
 
   status: 'ativo' | 'inativo';

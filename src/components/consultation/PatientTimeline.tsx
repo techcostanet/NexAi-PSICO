@@ -47,45 +47,87 @@ export const PatientTimeline: React.FC<PatientTimelineProps> = ({
     setExpandedIds((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
+  const calcularIdade = (dataNasc: string) => {
+    if (!dataNasc) return '';
+    const hoje = new Date();
+    const nasc = new Date(dataNasc);
+    let anos = hoje.getFullYear() - nasc.getFullYear();
+    const m = hoje.getMonth() - nasc.getMonth();
+    if (m < 0 || (m === 0 && hoje.getDate() < nasc.getDate())) {
+      anos--;
+    }
+    return anos > 0 ? `${anos} anos` : '';
+  };
+
   return (
     <div className="space-y-6">
       
-      {/* Cabeçalho do Paciente com Alertas */}
-      <Card className="bg-gradient-to-r from-slate-900 to-navy-900 text-white p-6 rounded-2xl shadow-md">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-3">
-              <h2 className="text-xl font-bold tracking-tight">{paciente.nomeCompleto}</h2>
-              <Badge variant="brand">
-                {paciente.status === 'ativo' ? 'Tratamento Ativo' : 'Inativo'}
-              </Badge>
-            </div>
-            <div className="text-xs text-slate-300 mt-1 flex flex-wrap items-center gap-x-4 gap-y-1">
-              <span>CPF: {paciente.cpf}</span>
-              <span>•</span>
-              <span>Nasc: {new Date(paciente.dataNascimento).toLocaleDateString('pt-BR')}</span>
-              <span>•</span>
-              <span>Tel: {paciente.telefone}</span>
-              {paciente.dadosConvenio?.nomeConvenio && (
-                <>
-                  <span>•</span>
-                  <span>Convênio: {paciente.dadosConvenio.nomeConvenio}</span>
-                </>
-              )}
+      {/* Cabeçalho Claro do Paciente com Foto e Alertas */}
+      <Card className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-2xl shadow-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+          <div className="flex items-start sm:items-center gap-4">
+            {/* Foto ou Avatar com Iniciais */}
+            {paciente.fotoUrl ? (
+              <img
+                src={paciente.fotoUrl}
+                alt={paciente.nomeCompleto}
+                className="w-16 h-16 rounded-2xl object-cover border border-slate-200 dark:border-slate-700 shadow-sm shrink-0"
+              />
+            ) : (
+              <div className="w-16 h-16 rounded-2xl bg-brand-50 dark:bg-brand-950/40 text-brand-700 dark:text-brand-300 font-extrabold text-xl flex items-center justify-center border border-brand-200 dark:border-brand-800 shrink-0">
+                {paciente.nomeCompleto.split(' ').map((n) => n[0]).slice(0, 2).join('')}
+              </div>
+            )}
+
+            <div>
+              <div className="flex flex-wrap items-center gap-2.5">
+                <h2 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
+                  {paciente.nomeCompleto}
+                </h2>
+                <Badge variant={paciente.status === 'ativo' ? 'success' : 'neutral'}>
+                  {paciente.status === 'ativo' ? 'Tratamento Ativo' : 'Inativo'}
+                </Badge>
+                {paciente.configuracaoDiario?.habilitado && (
+                  <Badge variant="brand" size="sm">
+                    {paciente.configuracaoDiario.modoInterfaceDefault === 'kids'
+                      ? 'Diário Kids'
+                      : paciente.configuracaoDiario.modoInterfaceDefault === 'teen'
+                      ? 'Diário Teen'
+                      : 'Diário Adulto'}
+                  </Badge>
+                )}
+              </div>
+
+              <div className="text-xs text-slate-500 dark:text-slate-400 mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
+                <span>CPF: {paciente.cpf}</span>
+                <span>•</span>
+                <span>
+                  {new Date(paciente.dataNascimento).toLocaleDateString('pt-BR')}
+                  {calcularIdade(paciente.dataNascimento) ? ` (${calcularIdade(paciente.dataNascimento)})` : ''}
+                </span>
+                <span>•</span>
+                <span>Tel: {paciente.telefone}</span>
+                {paciente.dadosConvenio?.nomeConvenio && (
+                  <>
+                    <span>•</span>
+                    <span>Convênio: {paciente.dadosConvenio.nomeConvenio}</span>
+                  </>
+                )}
+              </div>
             </div>
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            {modules.diarioHumor && onOpenPatientPortal && (
+            {modules.diarioHumor && paciente.configuracaoDiario?.habilitado && onOpenPatientPortal && (
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => onOpenPatientPortal(paciente.id)}
-                className="bg-teal-500/20 border-teal-400/40 text-teal-200 hover:bg-teal-500/30 text-xs flex items-center gap-1.5"
+                className="text-xs flex items-center gap-1.5"
                 title="Abrir o diário como o paciente vê no smartphone"
               >
-                <Heart className="w-3.5 h-3.5 text-teal-300" />
-                Portal do Paciente
+                <Heart className="w-3.5 h-3.5 text-teal-600" />
+                Portal
               </Button>
             )}
             {modules.scannerFichas && onOpenScanner && (
@@ -93,9 +135,9 @@ export const PatientTimeline: React.FC<PatientTimelineProps> = ({
                 variant="outline"
                 size="sm"
                 onClick={onOpenScanner}
-                className="bg-white/10 border-white/20 text-white hover:bg-white/20 text-xs"
+                className="text-xs"
               >
-                + Scan Físico (Drive)
+                Digitalizar
               </Button>
             )}
             {modules.consultaIa && onOpenConsultation && (
@@ -103,25 +145,25 @@ export const PatientTimeline: React.FC<PatientTimelineProps> = ({
                 variant="primary"
                 size="sm"
                 onClick={onOpenConsultation}
-                className="text-xs shadow-lg shadow-brand-500/30"
+                className="text-xs shadow-md shadow-brand-500/20"
               >
-                + Nova Consulta IA
+                Nova Consulta
               </Button>
             )}
           </div>
         </div>
 
-        {/* Alertas Médicos & Alergias em Destaque */}
-        {(paciente.alertasMedicos && paciente.alertasMedicos.length > 0) ||
-        (paciente.alergias && paciente.alergias.length > 0) ? (
-          <div className="mt-4 pt-4 border-t border-white/10 flex flex-wrap items-center gap-2">
-            <span className="text-[11px] font-bold text-rose-300 uppercase tracking-wider flex items-center gap-1">
+        {/* Alertas Clínicos em Destaque Claro */}
+        {((paciente.alertasMedicos && paciente.alertasMedicos.length > 0) ||
+          (paciente.alergias && paciente.alergias.length > 0)) && (
+          <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 flex flex-wrap items-center gap-2">
+            <span className="text-[11px] font-bold text-rose-600 dark:text-rose-400 uppercase tracking-wider flex items-center gap-1">
               <AlertTriangle className="w-3.5 h-3.5" /> Alertas Clínicos:
             </span>
             {paciente.alertasMedicos?.map((alerta, i) => (
               <span
                 key={i}
-                className="text-[11px] bg-rose-500/20 border border-rose-500/30 text-rose-200 px-2 py-0.5 rounded-full"
+                className="text-[11px] bg-rose-50 border border-rose-200 text-rose-700 dark:bg-rose-950/40 dark:border-rose-900/50 dark:text-rose-300 px-2.5 py-0.5 rounded-full font-medium"
               >
                 {alerta}
               </span>
@@ -129,13 +171,13 @@ export const PatientTimeline: React.FC<PatientTimelineProps> = ({
             {paciente.alergias?.map((alergia, i) => (
               <span
                 key={i}
-                className="text-[11px] bg-amber-500/20 border border-amber-500/30 text-amber-200 px-2 py-0.5 rounded-full"
+                className="text-[11px] bg-amber-50 border border-amber-200 text-amber-800 dark:bg-amber-950/40 dark:border-amber-900/50 dark:text-amber-300 px-2.5 py-0.5 rounded-full font-medium"
               >
                 Alergia: {alergia}
               </span>
             ))}
           </div>
-        ) : null}
+        )}
       </Card>
 
       {/* Barra de Abas do Prontuário (somente se Diário de Humor estiver ativo) */}
@@ -299,7 +341,7 @@ export const PatientTimeline: React.FC<PatientTimelineProps> = ({
                               {/* Objetivo */}
                               <div className="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl">
                                 <span className="font-bold text-blue-700 dark:text-blue-300 block mb-1">
-                                  [O] Objetivo / Exame do Estado Mental:
+                                  [O] Objetivo:
                                 </span>
                                 <p className="text-slate-700 dark:text-slate-300 leading-relaxed">
                                   {reg.conteudoClinico.objetivo}

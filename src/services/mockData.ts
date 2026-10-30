@@ -41,6 +41,7 @@ export const INITIAL_PACIENTES: Paciente[] = [
   {
     id: 'pac_1',
     nomeCompleto: 'Helena Vasconcelos Duarte',
+    fotoUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80',
     cpf: '128.459.789-02',
     dataNascimento: '1988-04-12',
     genero: 'F',
@@ -82,6 +83,7 @@ export const INITIAL_PACIENTES: Paciente[] = [
   {
     id: 'pac_2',
     nomeCompleto: 'Gabriel Menezes Castro',
+    fotoUrl: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&auto=format&fit=crop&q=80',
     cpf: '349.812.678-44',
     dataNascimento: '1995-11-23',
     genero: 'M',
@@ -125,6 +127,7 @@ export const INITIAL_PACIENTES: Paciente[] = [
   {
     id: 'pac_3',
     nomeCompleto: 'Maria Aparecida Santos',
+    fotoUrl: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=150&auto=format&fit=crop&q=80',
     cpf: '043.912.338-91',
     dataNascimento: '1962-07-05',
     genero: 'F',
@@ -158,6 +161,7 @@ export const INITIAL_PACIENTES: Paciente[] = [
   {
     id: 'pac_4',
     nomeCompleto: 'Lucas Fontes de Albuquerque',
+    fotoUrl: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150&auto=format&fit=crop&q=80',
     cpf: '401.554.892-15',
     dataNascimento: '2001-09-18',
     genero: 'M',
@@ -181,6 +185,7 @@ export const INITIAL_PACIENTES: Paciente[] = [
   {
     id: 'pac_5',
     nomeCompleto: 'Sophia Martins Ribeiro (Criança - 8 anos)',
+    fotoUrl: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80',
     cpf: '512.304.992-80',
     dataNascimento: '2018-05-14',
     genero: 'F',

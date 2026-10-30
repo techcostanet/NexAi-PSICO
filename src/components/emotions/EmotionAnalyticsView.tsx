@@ -138,108 +138,55 @@ export const EmotionAnalyticsView: React.FC<EmotionAnalyticsViewProps> = ({
   return (
     <div className="space-y-6">
       
-      {/* 1. Card de Controle SaaS & Compartilhamento WhatsApp */}
-      <div className="bg-gradient-to-r from-teal-900 via-brand-900 to-slate-900 text-white p-5 rounded-3xl shadow-md border border-teal-500/20">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          
-          <div className="space-y-1">
+      {/* 1. Barra Operacional Clínica do Diário */}
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-2xl shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-teal-50 dark:bg-teal-950/40 text-teal-600 dark:text-teal-400 flex items-center justify-center shrink-0">
+            <Heart className="w-4 h-4" />
+          </div>
+          <div>
             <div className="flex items-center gap-2">
-              <span className="text-xl">📱</span>
-              <h3 className="text-base font-bold text-white">
-                Módulo SaaS: Diário de Emoções do Paciente
-              </h3>
-              <Badge variant={isHabilitado ? 'success' : 'neutral'}>
-                {isHabilitado ? 'Acesso Ativo' : 'Acesso Desativado'}
+              <span className="text-xs font-bold text-slate-900 dark:text-white">
+                Diário de Emoções
+              </span>
+              <Badge variant={isHabilitado ? 'success' : 'neutral'} size="sm">
+                {isHabilitado
+                  ? (modoDefault === 'kids' ? 'Infantil' : modoDefault === 'teen' ? 'Jovem' : 'Adulto')
+                  : 'Desativado'}
               </Badge>
             </div>
-            <p className="text-xs text-teal-200">
-              O paciente registra sentimentos pelo celular (PWA) e você analisa as oscilações na consulta.
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">
+              Registros e oscilações emocionais informados pelo paciente via celular.
             </p>
           </div>
+        </div>
 
-          <div className="flex flex-wrap items-center gap-2">
-            
-            {/* Toggle de Ativação */}
-            <button
-              onClick={() => handleToggleHabilitado(!isHabilitado)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border ${
-                isHabilitado
-                  ? 'bg-rose-500/20 text-rose-200 border-rose-400/30 hover:bg-rose-500/30'
-                  : 'bg-emerald-500 text-white border-emerald-400 hover:bg-emerald-600'
-              }`}
-            >
-              {isHabilitado ? 'Desativar Acesso' : 'Ativar Diário'}
-            </button>
-
-            {/* Botão de Enviar WhatsApp */}
+        {isHabilitado ? (
+          <div className="flex items-center gap-2">
             <button
               onClick={handleEnviarWhatsApp}
-              className="px-3.5 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all"
+              className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all"
             >
               <MessageCircle className="w-3.5 h-3.5" />
-              Enviar pelo WhatsApp
+              <span>Enviar WhatsApp</span>
             </button>
 
-            {/* Abrir Visão do Paciente (Para testar na hora) */}
             {onOpenPatientPortal && (
               <button
                 onClick={() => onOpenPatientPortal(paciente.id)}
-                className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-semibold flex items-center gap-1.5 border border-white/20 transition-all"
+                className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold flex items-center gap-1.5 border border-slate-200 dark:border-slate-700 transition-all"
                 title="Abrir como o paciente enxerga no celular"
               >
                 <ExternalLink className="w-3.5 h-3.5" />
-                Visualizar Portal
+                <span>Portal</span>
               </button>
             )}
-
           </div>
-
-        </div>
-
-        {/* Configuração de Modo (Kids, Teen, Adulto) */}
-        <div className="mt-4 pt-4 border-t border-white/10 flex flex-wrap items-center justify-between gap-3 text-xs">
-          <div className="flex items-center gap-2">
-            <span className="text-teal-200 font-semibold">Perfil de Interface Recomendado:</span>
-            <div className="inline-flex bg-black/20 p-1 rounded-xl border border-white/10">
-              <button
-                onClick={() => handleMudarModo('kids')}
-                className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
-                  modoDefault === 'kids' ? 'bg-amber-400 text-amber-950' : 'text-teal-200 hover:text-white'
-                }`}
-              >
-                🦁 Kids (Infantil)
-              </button>
-              <button
-                onClick={() => handleMudarModo('teen')}
-                className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
-                  modoDefault === 'teen' ? 'bg-indigo-500 text-white' : 'text-teal-200 hover:text-white'
-                }`}
-              >
-                ⚡ Teen (Jovem)
-              </button>
-              <button
-                onClick={() => handleMudarModo('adulto')}
-                className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
-                  modoDefault === 'adulto' ? 'bg-teal-500 text-white' : 'text-teal-200 hover:text-white'
-                }`}
-              >
-                🌿 Adulto
-              </button>
-            </div>
+        ) : (
+          <div className="text-xs text-slate-400 italic">
+            Recurso desativado na ficha do paciente.
           </div>
-
-          <div className="flex items-center gap-2">
-            <span className="text-teal-200 font-mono">Código WhatsApp: <strong>{config.tokenAcesso || paciente.cpf}</strong></span>
-            <button
-              onClick={handleCopiarLink}
-              className="text-teal-300 hover:text-white p-1 rounded hover:bg-white/10 transition-colors"
-              title="Copiar Link"
-            >
-              <Copy className="w-3.5 h-3.5" />
-            </button>
-          </div>
-        </div>
-
+        )}
       </div>
 
       {/* 2. Alerta Crítico Clínico (Se houver) */}
@@ -499,7 +446,7 @@ export const EmotionAnalyticsView: React.FC<EmotionAnalyticsViewProps> = ({
                   {item.qualidadeSono && (
                     <span className="flex items-center gap-1">
                       <Moon className="w-3.5 h-3.5 text-indigo-500" />
-                      Sono: <strong>{item.qualidadeSono === 'bom' ? 'Bom / Repousador' : item.qualidadeSono === 'pessimo' ? 'Ruim / Insônia' : 'Regular'}</strong>
+                      Sono: <strong>{item.qualidadeSono === 'bom' ? 'Bom' : item.qualidadeSono === 'pessimo' ? 'Ruim' : 'Regular'}</strong>
                     </span>
                   )}
                   {item.tomouMedicacao !== undefined && (
