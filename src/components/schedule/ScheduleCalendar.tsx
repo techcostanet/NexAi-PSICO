@@ -35,7 +35,7 @@ export const ScheduleCalendar: React.FC<ScheduleCalendarProps> = ({
   onSelectPaciente,
   onOpenConsultationForPaciente,
 }) => {
-  const { agendamentos, pacientes, adicionarAgendamento, atualizarStatusAgendamento } = useDatabase();
+  const { agendamentos, pacientes, adicionarAgendamento, atualizarStatusAgendamento, adicionarPaciente } = useDatabase();
   const { currentUser, isProfissionalSaude } = useAuth();
   const { modules } = useSaasPlan();
   const { showToast } = useToast();
@@ -49,6 +49,14 @@ export const ScheduleCalendar: React.FC<ScheduleCalendarProps> = ({
   const isGoogleCalendarSynced = Boolean(localStorage.getItem('nexai_calendar_email'));
 
   // Formulário de Novo Agendamento
+  // Cadastro rápido na agenda
+  const [tipoSelecaoPaciente, setTipoSelecaoPaciente] = useState<'existente' | 'rapido'>('existente');
+  const [pacienteRapido, setPacienteRapido] = useState({
+    nomeCompleto: '',
+    telefone: '+55 11 9',
+    dataNascimento: '1995-01-01',
+  });
+
   const [novoAgendamento, setNovoAgendamento] = useState({
     pacienteId: pacientes[0]?.id || '',
     profissionalId: currentUser.id,
@@ -65,16 +73,55 @@ export const ScheduleCalendar: React.FC<ScheduleCalendarProps> = ({
 
   const handleSalvarAgendamento = (e: React.FormEvent) => {
     e.preventDefault();
-    const paciente = pacientes.find((p) => p.id === novoAgendamento.pacienteId);
-    if (!paciente) return;
+
+    let pacienteIdFinal = novoAgendamento.pacienteId;
+    let pacienteNomeFinal = '';
+    let pacienteTelefoneFinal = '';
+
+    if (tipoSelecaoPaciente === 'rapido') {
+      if (!pacienteRapido.nomeCompleto.trim() || !pacienteRapido.telefone.trim()) {
+        showToast('Dados incompletos', 'Informe o nome e o telefone do novo paciente.', 'warning');
+        return;
+      }
+      const novoPac = adicionarPaciente({
+        nomeCompleto: pacienteRapido.nomeCompleto.trim(),
+        telefone: pacienteRapido.telefone.trim(),
+        cpf: `000.000.${Math.floor(100 + Math.random() * 900)}-00`,
+        dataNascimento: pacienteRapido.dataNascimento || '1995-01-01',
+        genero: 'NaoInformado',
+        status: 'ativo',
+        contatoEmergencia: {
+          nome: 'Contato',
+          parentesco: 'Responsável',
+          telefone: pacienteRapido.telefone.trim(),
+        },
+        criadoPor: currentUser.id,
+        configuracaoDiario: {
+          habilitado: true,
+          modoInterfaceDefault: 'adulto',
+          tokenAcesso: `pac-${Date.now().toString().slice(-6)}`,
+          atualizadoEm: new Date().toISOString(),
+        },
+      });
+
+      pacienteIdFinal = novoPac.id;
+      pacienteNomeFinal = novoPac.nomeCompleto;
+      pacienteTelefoneFinal = novoPac.telefone;
+    } else {
+      const paciente = pacientes.find((p) => p.id === novoAgendamento.pacienteId);
+      if (!paciente) return;
+      pacienteIdFinal = paciente.id;
+      pacienteNomeFinal = paciente.nomeCompleto;
+      pacienteTelefoneFinal = paciente.telefone;
+    }
 
     const dataHoraInicio = `${novoAgendamento.data}T${novoAgendamento.hora}:00`;
     const dataHoraFim = new Date(new Date(dataHoraInicio).getTime() + 50 * 60 * 1000).toISOString();
 
     adicionarAgendamento({
-      pacienteId: paciente.id,
-      pacienteNome: paciente.nomeCompleto,
-      pacienteTelefone: paciente.telefone,
+      pacienteId: pacienteIdFinal,
+      pacienteNome: pacienteNomeFinal,
+      pacienteTelefone: pacienteTelefoneFinal,
       profissionalId: novoAgendamento.profissionalId,
       profissionalNome: novoAgendamento.profissionalNome,
       especialidade: novoAgendamento.especialidade,
@@ -754,22 +801,83 @@ export const ScheduleCalendar: React.FC<ScheduleCalendarProps> = ({
         title="Agendar Consulta"
       >
         <form onSubmit={handleSalvarAgendamento} className="space-y-4">
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-              Paciente *
-            </label>
-            <select
-              value={novoAgendamento.pacienteId}
-              onChange={(e) => setNovoAgendamento({ ...novoAgendamento, pacienteId: e.target.value })}
-              className="w-full px-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl"
-              required
-            >
-              {pacientes.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.nomeCompleto} ({p.cpf})
-                </option>
-              ))}
-            </select>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+                Paciente da Sessão *
+              </label>
+              <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-0.5 rounded-lg text-xs">
+                <button
+                  type="button"
+                  onClick={() => setTipoSelecaoPaciente('existente')}
+                  className={`px-2.5 py-1 rounded-md font-semibold transition-all ${
+                    tipoSelecaoPaciente === 'existente'
+                      ? 'bg-white dark:bg-slate-700 text-brand-600 dark:text-white shadow-sm'
+                      : 'text-slate-500 hover:text-slate-900'
+                  }`}
+                >
+                  Cadastrado
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setTipoSelecaoPaciente('rapido')}
+                  className={`px-2.5 py-1 rounded-md font-semibold transition-all ${
+                    tipoSelecaoPaciente === 'rapido'
+                      ? 'bg-white dark:bg-slate-700 text-brand-600 dark:text-white shadow-sm'
+                      : 'text-slate-500 hover:text-slate-900'
+                  }`}
+                >
+                  + Rápido
+                </button>
+              </div>
+            </div>
+
+            {tipoSelecaoPaciente === 'existente' ? (
+              <select
+                value={novoAgendamento.pacienteId}
+                onChange={(e) => setNovoAgendamento({ ...novoAgendamento, pacienteId: e.target.value })}
+                className="w-full px-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl"
+                required
+              >
+                {pacientes.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.nomeCompleto} ({p.cpf})
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <div className="p-3 bg-brand-50/60 dark:bg-brand-950/30 border border-brand-200 dark:border-brand-900/40 rounded-xl space-y-2.5">
+                <p className="text-[11px] text-brand-800 dark:text-brand-300 font-medium">
+                  Cadastro Rápido: Agende agora e conclua os dados depois na ficha.
+                </p>
+                <div>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Nome Completo do Paciente *"
+                    value={pacienteRapido.nomeCompleto}
+                    onChange={(e) => setPacienteRapido({ ...pacienteRapido, nomeCompleto: e.target.value })}
+                    className="w-full px-3 py-1.5 text-xs bg-white dark:bg-slate-800 border border-brand-300 dark:border-brand-700 rounded-lg focus:ring-2 focus:ring-brand-500"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <input
+                    type="text"
+                    required
+                    placeholder="Telefone WhatsApp *"
+                    value={pacienteRapido.telefone}
+                    onChange={(e) => setPacienteRapido({ ...pacienteRapido, telefone: e.target.value })}
+                    className="w-full px-3 py-1.5 text-xs bg-white dark:bg-slate-800 border border-brand-300 dark:border-brand-700 rounded-lg focus:ring-2 focus:ring-brand-500"
+                  />
+                  <input
+                    type="date"
+                    value={pacienteRapido.dataNascimento}
+                    onChange={(e) => setPacienteRapido({ ...pacienteRapido, dataNascimento: e.target.value })}
+                    className="w-full px-3 py-1.5 text-xs bg-white dark:bg-slate-800 border border-brand-300 dark:border-brand-700 rounded-lg focus:ring-2 focus:ring-brand-500"
+                  />
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-2 gap-3">

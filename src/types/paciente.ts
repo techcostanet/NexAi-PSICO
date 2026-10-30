@@ -15,6 +15,15 @@ export interface ContatoEmergencia {
   telefone: string;
 }
 
+export interface Responsavel {
+  id?: string;
+  nome: string;
+  parentesco: string;
+  telefone: string;
+  cpf?: string;
+  email?: string;
+}
+
 export interface DadosConvenio {
   tipo: 'particular' | 'convenio';
   nomeConvenio?: string;
@@ -32,6 +41,7 @@ export interface Paciente {
   email?: string;
   endereco?: Endereco;
   contatoEmergencia: ContatoEmergencia;
+  responsaveis?: Responsavel[];
   dadosConvenio?: DadosConvenio;
   
   // Alertas médicos em destaque

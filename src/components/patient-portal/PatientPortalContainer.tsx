@@ -16,7 +16,7 @@ export const PatientPortalContainer: React.FC<PatientPortalContainerProps> = ({
   onBackToClinic,
   initialPacienteId,
 }) => {
-  const { pacientes, obterPacientePorCpfOuToken, adicionarRegistroEmocao, obterEmocoesDoPaciente } = useDatabase();
+  const { pacientes, obterPacientePorCpfOuToken, adicionarRegistroEmocao, obterEmocoesDoPaciente, atualizarConfiguracaoDiario } = useDatabase();
 
   const [inputTermo, setInputTermo] = useState('');
   const [erroLogin, setErroLogin] = useState<string | null>(null);

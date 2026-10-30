@@ -27,6 +27,7 @@ interface DatabaseContextType {
   adicionarPaciente: (paciente: Omit<Paciente, 'id' | 'criadoEm' | 'atualizadoEm' | 'totalDocumentosScaneados'>) => Paciente;
   atualizarPaciente: (id: string, dados: Partial<Paciente>) => void;
   obterPacientePorId: (id: string) => Paciente | undefined;
+  removerPaciente: (id: string) => void;
   obterPacientePorCpfOuToken: (termo: string) => Paciente | undefined;
   atualizarConfiguracaoDiario: (pacienteId: string, config: Partial<ConfiguracaoDiarioPaciente>) => void;
   
@@ -124,6 +125,10 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const obterPacientePorId = (id: string) => {
     return pacientes.find((p) => p.id === id);
+  };
+
+  const removerPaciente = (id: string) => {
+    setPacientes((prev) => prev.filter((p) => p.id !== id));
   };
 
   // Funções de Prontuário
@@ -331,6 +336,7 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         adicionarPaciente,
         atualizarPaciente,
         obterPacientePorId,
+        removerPaciente,
         obterPacientePorCpfOuToken,
         atualizarConfiguracaoDiario,
         adicionarProntuario,
