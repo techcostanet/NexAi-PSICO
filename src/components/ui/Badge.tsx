@@ -3,7 +3,7 @@ import React from 'react';
 interface BadgeProps {
   children: React.ReactNode;
   variant?: 'brand' | 'success' | 'warning' | 'danger' | 'info' | 'neutral' | 'purple';
-  size?: 'sm' | 'md';
+  size?: 'sm' | 'md' | 'lg';
   className?: string;
   dot?: boolean;
 }
@@ -38,6 +38,7 @@ export const Badge: React.FC<BadgeProps> = ({
   const sizeStyles = {
     sm: 'px-2 py-0.5 text-xs font-medium',
     md: 'px-2.5 py-1 text-xs font-semibold',
+    lg: 'px-3 py-1 text-sm font-semibold',
   };
 
   return (

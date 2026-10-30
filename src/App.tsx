@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from './context/AuthContext';
 import { useDatabase } from './context/DatabaseContext';
 import { useSaasPlan } from './context/SaasPlanContext';
+import { LandingPage } from './components/landing/LandingPage';
 import { ClinicLogin } from './components/auth/ClinicLogin';
 import { Header } from './components/layout/Header';
 import { Navigation } from './components/layout/Navigation';
@@ -20,21 +21,37 @@ import { SaasAdminDashboard } from './components/saas-admin/SaasAdminDashboard';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from './components/ui/Button';
 
+type AppRoute = 'landing' | 'login' | 'psico' | 'admin' | 'portal';
+
+const resolveInitialRoute = (): AppRoute => {
+  const path = window.location.pathname.toLowerCase().replace(/\/+$/, '') || '/';
+  const params = new URLSearchParams(window.location.search);
+
+  if (path === '/admin' || params.get('admin') === 'saas' || params.get('master') === 'true') {
+    return 'admin';
+  }
+  if (path === '/portal' || params.get('portal') === 'true' || params.get('t') || params.get('termo')) {
+    return 'portal';
+  }
+  if (path === '/login') {
+    return 'login';
+  }
+  if (path === '/psico') {
+    return 'psico';
+  }
+  return 'landing';
+};
+
 export const App: React.FC = () => {
   const { isAuthenticated } = useAuth();
   const { pacientes, obterProntuariosDoPaciente } = useDatabase();
   const { modules, isSaasAdmin } = useSaasPlan();
 
-  const [currentView, setCurrentView] = useState<string>(() => {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('portal') === 'true' || params.get('t') || params.get('termo')) {
-      return 'portal_paciente';
-    }
-    if (params.get('admin') === 'saas' || params.get('master') === 'true') {
-      return 'saas_admin';
-    }
-    return 'dashboard';
-  });
+  // Roteamento de Primeiro Nível (URLs limpas do sistema)
+  const [route, setRoute] = useState<AppRoute>(resolveInitialRoute);
+
+  // Sub-visualizações internas da clínica (/psico)
+  const [currentView, setCurrentView] = useState<string>('dashboard');
   const [selectedPacienteId, setSelectedPacienteId] = useState<string | null>(null);
 
   // Modais de Ação Rápida
@@ -42,21 +59,54 @@ export const App: React.FC = () => {
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [activeConsultationPacienteId, setActiveConsultationPacienteId] = useState<string | undefined>(undefined);
 
+  // Função central de navegação entre rotas com atualização da URL do navegador
+  const navigateRoute = (targetRoute: AppRoute, subview?: string) => {
+    const routePaths: Record<AppRoute, string> = {
+      landing: '/',
+      login: '/login',
+      psico: '/psico',
+      admin: '/admin',
+      portal: '/portal',
+    };
+
+    const targetPath = routePaths[targetRoute];
+    if (window.location.pathname !== targetPath) {
+      window.history.pushState(null, '', targetPath);
+    }
+
+    setRoute(targetRoute);
+    if (subview) {
+      setCurrentView(subview);
+    }
+  };
+
+  // Sincronização com o histórico do navegador (botão voltar/avançar)
+  useEffect(() => {
+    const handlePopState = () => {
+      setRoute(resolveInitialRoute());
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  // Proteção da rota clínica /psico: se não autenticado, redireciona suavemente para /login
+  useEffect(() => {
+    if (route === 'psico' && !isAuthenticated) {
+      navigateRoute('login');
+    }
+  }, [route, isAuthenticated]);
+
   // Redireciona caso o usuário tente acessar uma tela cujo módulo foi desativado no SaaS
   useEffect(() => {
     if (currentView === 'scanner' && !modules.scannerFichas) {
       setCurrentView('dashboard');
     }
-    if (currentView === 'portal_paciente' && !modules.diarioHumor) {
-      const params = new URLSearchParams(window.location.search);
-      // Se não veio direto pela URL de portal de paciente, volta ao dashboard
-      if (params.get('portal') !== 'true') {
-        setCurrentView('dashboard');
-      }
+    if (route === 'portal' && !modules.diarioHumor) {
+      navigateRoute('landing');
     }
-  }, [currentView, modules]);
+  }, [currentView, modules, route]);
 
-  // Handlers
+  // Handlers Clínicos
   const handleSelectPaciente = (pacienteId: string) => {
     setSelectedPacienteId(pacienteId);
     setCurrentView('prontuario_detalhe');
@@ -78,14 +128,38 @@ export const App: React.FC = () => {
     ? pacientes.find((p) => p.id === selectedPacienteId)
     : null;
 
-  // 1. Rota exclusiva do Painel SaaS Master (acessível apenas por ?admin=saas ou ?master=true)
-  if (currentView === 'saas_admin') {
+  // 1. Rota Raiz (/) -> LANDING PAGE
+  if (route === 'landing') {
+    return (
+      <LandingPage
+        onGoToLogin={() => navigateRoute(isAuthenticated ? 'psico' : 'login')}
+        onGoToPortalDemo={() => navigateRoute('portal')}
+        onGoToAdmin={() => navigateRoute('admin')}
+      />
+    );
+  }
+
+  // 2. Rota de Login (/login) -> TELA DE LOGIN DO CONSULTÓRIO
+  if (route === 'login') {
+    return (
+      <ClinicLogin
+        onLoginSuccess={() => {
+          navigateRoute('psico', 'dashboard');
+        }}
+        onBackToLanding={() => {
+          navigateRoute('landing');
+        }}
+      />
+    );
+  }
+
+  // 3. Rota Admin (/admin) -> PAINEL SAAS MASTER
+  if (route === 'admin') {
     if (isSaasAdmin) {
       return (
         <SaasAdminDashboard
           onBackToClinic={() => {
-            setSelectedPacienteId(null);
-            setCurrentView('dashboard');
+            navigateRoute('psico', 'dashboard');
           }}
         />
       );
@@ -93,40 +167,29 @@ export const App: React.FC = () => {
     return (
       <SaasAdminLogin
         onBackToClinic={() => {
-          setSelectedPacienteId(null);
-          setCurrentView('dashboard');
+          navigateRoute('landing');
         }}
         onLoginSuccess={() => {
-          setCurrentView('saas_admin');
+          setRoute('admin');
         }}
       />
     );
   }
 
-  // 2. Rota do Portal do Paciente (PWA isolado para o paciente final)
-  if (currentView === 'portal_paciente') {
+  // 4. Rota Portal (/portal) -> DIÁRIO DO PACIENTE PWA
+  if (route === 'portal') {
     return (
       <PatientPortalContainer
         onBackToClinic={() => {
           setSelectedPacienteId(null);
-          setCurrentView('dashboard');
+          navigateRoute('psico', 'dashboard');
         }}
         initialPacienteId={selectedPacienteId || undefined}
       />
     );
   }
 
-  // 3. Autenticação Clínica: se não estiver autenticado, exibe a tela de login clínico
-  if (!isAuthenticated) {
-    return (
-      <ClinicLogin
-        onLoginSuccess={() => {
-          setCurrentView('dashboard');
-        }}
-      />
-    );
-  }
-
+  // 5. Rota do Consultório (/psico) -> SISTEMA CLÍNICO
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col font-sans">
       
@@ -136,8 +199,12 @@ export const App: React.FC = () => {
         onOpenConsultation={() => handleOpenConsultation()}
         onOpenSettings={() => setIsSettingsModalOpen(true)}
         onNavigate={(view) => {
-          setSelectedPacienteId(null);
-          setCurrentView(view);
+          if (view === 'portal_paciente') {
+            navigateRoute('portal');
+          } else {
+            setSelectedPacienteId(null);
+            setCurrentView(view);
+          }
         }}
       />
 
@@ -217,31 +284,13 @@ export const App: React.FC = () => {
                 onOpenConsultation={() => handleOpenConsultation(selectedPaciente.id)}
                 onOpenPatientPortal={(pacId) => {
                   setSelectedPacienteId(pacId);
-                  setCurrentView('portal_paciente');
+                  navigateRoute('portal');
                 }}
               />
             </div>
           )}
 
-          {/* 6. Módulo de Prontuários (Lista Geral de Timeline) */}
-          {currentView === 'prontuarios' && (
-            <div className="space-y-4">
-              {pacientes.length > 0 && (
-                <PatientTimeline
-                  paciente={selectedPaciente || pacientes[0]}
-                  prontuarios={obterProntuariosDoPaciente(selectedPaciente?.id || pacientes[0].id)}
-                  onOpenScanner={() => handleOpenScanner(selectedPaciente?.id || pacientes[0].id)}
-                  onOpenConsultation={() => handleOpenConsultation(selectedPaciente?.id || pacientes[0].id)}
-                  onOpenPatientPortal={(pacId) => {
-                    setSelectedPacienteId(pacId);
-                    setCurrentView('portal_paciente');
-                  }}
-                />
-              )}
-            </div>
-          )}
-
-          {/* 7. Módulo Financeiro */}
+          {/* 6. Módulo Financeiro */}
           {currentView === 'financeiro' && <FinancialDashboard />}
 
         </main>

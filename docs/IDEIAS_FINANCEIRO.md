@@ -63,3 +63,4 @@ Este documento consolida as sugestões e oportunidades de evolução do módulo 
     - *Lembrete suave*: 24h após a sessão.
     - *Lembrete de fechamento*: final do mês.
 - **Benefício**: O profissional não precisa improvisar textos de cobrança delicados.
+
