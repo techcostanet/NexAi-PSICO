@@ -1,5 +1,5 @@
 import React from 'react';
-import { Calendar, Users, Mic, Camera, LayoutDashboard, FileText, Receipt } from 'lucide-react';
+import { Calendar, Users, Mic, Camera, LayoutDashboard, Receipt } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useSaasPlan } from '../../context/SaasPlanContext';
 
@@ -54,13 +54,13 @@ export const MobileBottomBar: React.FC<MobileBottomBarProps> = ({
         <span className="text-[10px]">Agenda</span>
       </button>
 
-      {/* Botão Central de Ação Rápida (apenas se módulo habilitado) */}
+      {/* Botão Central de Ação Rápida */}
       {hasCentralAction && (
         <div className="relative -top-5">
           <button
             onClick={handleCentralAction}
             className="w-13 h-13 p-3.5 rounded-full bg-gradient-to-tr from-brand-600 to-teal-400 text-white shadow-lg shadow-brand-500/40 flex items-center justify-center active:scale-95 transition-transform"
-            title={modules.consultaIa && canViewClinicalData ? 'Gravar Consulta com IA' : 'Digitalizar Prontuário'}
+            title={modules.consultaIa && canViewClinicalData ? 'Gravar Consulta' : 'Digitalizar Ficha'}
           >
             {modules.consultaIa && canViewClinicalData ? (
               <Mic className="w-6 h-6" />
@@ -82,38 +82,16 @@ export const MobileBottomBar: React.FC<MobileBottomBarProps> = ({
         <span className="text-[10px]">Pacientes</span>
       </button>
 
-      {/* Scanner Físico (se habilitado) ou Financeiro / Prontuários (se desabilitado) */}
-      {modules.scannerFichas ? (
-        <button
-          onClick={onOpenScanner}
-          className={`flex flex-col items-center gap-1 p-1.5 rounded-xl transition-colors ${
-            currentView === 'scanner' ? 'text-brand-600 dark:text-brand-400 font-bold' : 'text-slate-500'
-          }`}
-        >
-          <Camera className="w-5 h-5" />
-          <span className="text-[10px]">Scanner</span>
-        </button>
-      ) : canViewClinicalData ? (
-        <button
-          onClick={() => onNavigate('prontuarios')}
-          className={`flex flex-col items-center gap-1 p-1.5 rounded-xl transition-colors ${
-            currentView === 'prontuarios' ? 'text-brand-600 dark:text-brand-400 font-bold' : 'text-slate-500'
-          }`}
-        >
-          <FileText className="w-5 h-5" />
-          <span className="text-[10px]">Prontuários</span>
-        </button>
-      ) : (
-        <button
-          onClick={() => onNavigate('financeiro')}
-          className={`flex flex-col items-center gap-1 p-1.5 rounded-xl transition-colors ${
-            currentView === 'financeiro' ? 'text-brand-600 dark:text-brand-400 font-bold' : 'text-slate-500'
-          }`}
-        >
-          <Receipt className="w-5 h-5" />
-          <span className="text-[10px]">Financeiro</span>
-        </button>
-      )}
+      {/* Financeiro */}
+      <button
+        onClick={() => onNavigate('financeiro')}
+        className={`flex flex-col items-center gap-1 p-1.5 rounded-xl transition-colors ${
+          currentView === 'financeiro' ? 'text-brand-600 dark:text-brand-400 font-bold' : 'text-slate-500'
+        }`}
+      >
+        <Receipt className="w-5 h-5" />
+        <span className="text-[10px]">Financeiro</span>
+      </button>
 
     </div>
   );

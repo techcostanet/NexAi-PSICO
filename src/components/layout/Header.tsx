@@ -1,5 +1,5 @@
 import React from 'react';
-import { Camera, Brain, Activity, Sparkles, LogOut } from 'lucide-react';
+import { Camera, Brain, Activity, Sparkles, LogOut, Heart } from 'lucide-react';
 import { RoleSwitcher } from './RoleSwitcher';
 import { Button } from '../ui/Button';
 import { APP_VERSION } from '../../version';
@@ -51,6 +51,20 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Ações Rápidas de Topo */}
           <div className="flex items-center gap-2 sm:gap-3">
             
+            {/* Botão de Demonstração do Diário de Emoções (para mostrar ao paciente/responsável) */}
+            {modules.diarioHumor && (
+              <Button
+                variant="outline"
+                size="sm"
+                leftIcon={<Heart className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />}
+                onClick={() => onNavigate('portal_paciente')}
+                className="hidden md:inline-flex border-teal-200 dark:border-teal-800/60 text-teal-700 dark:text-teal-300 hover:bg-teal-50 dark:hover:bg-teal-950/40 text-xs font-semibold"
+                title="Demonstrar o Diário de Emoções para o paciente ou responsáveis"
+              >
+                <span>Demonstração</span>
+              </Button>
+            )}
+
             {/* Botão Digitalizar Prontuário Físico (apenas se módulo ativo) */}
             {modules.scannerFichas && (
               <Button
@@ -60,7 +74,7 @@ export const Header: React.FC<HeaderProps> = ({
                 onClick={onOpenScanner}
                 className="hidden sm:inline-flex border-brand-200 hover:border-brand-300 hover:bg-brand-50/50 text-brand-800"
               >
-                <span>Scanner Físico</span>
+                <span>Scanner</span>
               </Button>
             )}
 
