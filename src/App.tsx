@@ -13,7 +13,7 @@ import { PhysicalChartScanner } from './components/scanner/PhysicalChartScanner'
 import { PatientTimeline } from './components/consultation/PatientTimeline';
 import { FinancialDashboard } from './components/financial/FinancialDashboard';
 import { ConsultationSessionModal } from './components/consultation/ConsultationSessionModal';
-import { GoogleIntegrationsModal } from './components/settings/GoogleIntegrationsModal';
+import { ProfessionalSettingsModal } from './components/settings/ProfessionalSettingsModal';
 import { PatientPortalContainer } from './components/patient-portal/PatientPortalContainer';
 import { SaasAdminLogin } from './components/saas-admin/SaasAdminLogin';
 import { SaasAdminDashboard } from './components/saas-admin/SaasAdminDashboard';
@@ -147,7 +147,6 @@ export const App: React.FC = () => {
         {/* Barra Lateral de Navegação Desktop */}
         <Navigation
           currentView={currentView}
-          onOpenSettings={() => setIsSettingsModalOpen(true)}
           onNavigate={(view) => {
             setSelectedPacienteId(null);
             setCurrentView(view);
@@ -270,8 +269,8 @@ export const App: React.FC = () => {
         }}
       />
 
-      {/* Modal de Integrações Google */}
-      <GoogleIntegrationsModal
+      {/* Modal de Configurações, Dados Cadastrais, Cores e Google */}
+      <ProfessionalSettingsModal
         isOpen={isSettingsModalOpen}
         onClose={() => setIsSettingsModalOpen(false)}
       />

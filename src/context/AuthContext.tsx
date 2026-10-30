@@ -1,12 +1,31 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { UserProfile, UserRole } from '../types';
-import { INITIAL_USERS } from '../services/mockData';
+
+export interface ProfessionalProfile {
+  nome: string;
+  especialidade: string;
+  registroProfissional: string;
+  nomeConsultorio: string;
+  email: string;
+  telefone: string;
+}
+
+const DEFAULT_PROFESSIONAL: ProfessionalProfile = {
+  nome: 'Dr. Roberto Silveira',
+  especialidade: 'Médico Psiquiatra',
+  registroProfissional: 'CRM/SP 142.890 - RQE 58912',
+  nomeConsultorio: 'Consultório de Psiquiatria Integrada',
+  email: 'roberto.silveira@nexai.com',
+  telefone: '+55 11 98765-4321',
+};
 
 interface AuthContextType {
+  professionalProfile: ProfessionalProfile;
+  updateProfessionalProfile: (dados: Partial<ProfessionalProfile>) => void;
   currentUser: UserProfile;
   availableUsers: UserProfile[];
   isAuthenticated: boolean;
-  login: (userId: string) => void;
+  login: (userId?: string) => void;
   logout: () => void;
   switchUser: (userId: string) => void;
   switchRole: (role: UserRole) => void;
@@ -23,31 +42,40 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return localStorage.getItem('nexai_clinic_auth') === 'true';
   });
 
-  const [currentUser, setCurrentUser] = useState<UserProfile>(() => {
-    const saved = localStorage.getItem('nexai_current_user');
+  const [professionalProfile, setProfessionalProfile] = useState<ProfessionalProfile>(() => {
+    const saved = localStorage.getItem('nexai_professional_profile');
     if (saved) {
       try {
         return JSON.parse(saved);
-      } catch (e) {
+      } catch {
         // fallback
       }
     }
-    return INITIAL_USERS[0]; // Padrão: Dr. Roberto (Médico)
+    return DEFAULT_PROFESSIONAL;
   });
 
   useEffect(() => {
-    localStorage.setItem('nexai_current_user', JSON.stringify(currentUser));
-  }, [currentUser]);
+    localStorage.setItem('nexai_professional_profile', JSON.stringify(professionalProfile));
+  }, [professionalProfile]);
 
   useEffect(() => {
     localStorage.setItem('nexai_clinic_auth', isAuthenticated ? 'true' : 'false');
   }, [isAuthenticated]);
 
-  const login = (userId: string) => {
-    const user = INITIAL_USERS.find(u => u.id === userId);
-    if (user) {
-      setCurrentUser(user);
-    }
+  const updateProfessionalProfile = (dados: Partial<ProfessionalProfile>) => {
+    setProfessionalProfile((prev) => ({ ...prev, ...dados }));
+  };
+
+  const currentUser: UserProfile = {
+    id: 'usr_solo_1',
+    nome: professionalProfile.nome,
+    email: professionalProfile.email,
+    role: 'medico',
+    especialidade: professionalProfile.especialidade,
+    registroProfissional: professionalProfile.registroProfissional,
+  };
+
+  const login = () => {
     setIsAuthenticated(true);
   };
 
@@ -55,39 +83,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsAuthenticated(false);
   };
 
-  const switchUser = (userId: string) => {
-    const user = INITIAL_USERS.find(u => u.id === userId);
-    if (user) {
-      setCurrentUser(user);
-    }
-  };
-
-  const switchRole = (role: UserRole) => {
-    const user = INITIAL_USERS.find(u => u.role === role);
-    if (user) {
-      setCurrentUser(user);
-    }
-  };
-
-  const isProfissionalSaude = currentUser.role === 'medico' || currentUser.role === 'psicologo' || currentUser.role === 'admin';
-  const isRecepcao = currentUser.role === 'recepcao' || isProfissionalSaude;
-  const isAdmin = currentUser.role === 'admin';
-  const canViewClinicalData = isProfissionalSaude;
+  const switchUser = () => {};
+  const switchRole = () => {};
 
   return (
     <AuthContext.Provider
       value={{
+        professionalProfile,
+        updateProfessionalProfile,
         currentUser,
-        availableUsers: INITIAL_USERS,
+        availableUsers: [currentUser],
         isAuthenticated,
         login,
         logout,
         switchUser,
         switchRole,
-        isProfissionalSaude,
-        isRecepcao,
-        isAdmin,
-        canViewClinicalData,
+        isProfissionalSaude: true,
+        isRecepcao: true,
+        isAdmin: true,
+        canViewClinicalData: true,
       }}
     >
       {children}

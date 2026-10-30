@@ -1,5 +1,5 @@
 import React from 'react';
-import { Camera, Brain, Activity, Sparkles, FolderSync, Heart, LogOut } from 'lucide-react';
+import { Camera, Brain, Activity, Sparkles, LogOut } from 'lucide-react';
 import { RoleSwitcher } from './RoleSwitcher';
 import { Button } from '../ui/Button';
 import { APP_VERSION } from '../../version';
@@ -51,28 +51,6 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Ações Rápidas de Topo */}
           <div className="flex items-center gap-2 sm:gap-3">
             
-            {/* Status Sincronização Google Cloud */}
-            <button
-              onClick={onOpenSettings}
-              className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/40 dark:hover:bg-emerald-900/60 border border-emerald-200 dark:border-emerald-800 text-[11px] font-medium text-emerald-700 dark:text-emerald-300 transition-colors"
-              title="Configurar Integrações Google"
-            >
-              <FolderSync className="w-3.5 h-3.5 text-emerald-600 animate-spin" style={{ animationDuration: '8s' }} />
-              <span>Google Cloud</span>
-            </button>
-
-            {/* Botão Acesso Rápido ao Portal do Paciente (apenas se módulo ativo) */}
-            {modules.diarioHumor && (
-              <button
-                onClick={() => onNavigate('portal_paciente')}
-                className="hidden xl:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-teal-50 hover:bg-teal-100 dark:bg-teal-950/40 dark:hover:bg-teal-900/60 border border-teal-200 dark:border-teal-800 text-[11px] font-semibold text-teal-700 dark:text-teal-300 transition-colors"
-                title="Acessar Diário do Paciente"
-              >
-                <Heart className="w-3.5 h-3.5 text-teal-600 animate-pulse" />
-                <span>Diário do Paciente</span>
-              </button>
-            )}
-
             {/* Botão Digitalizar Prontuário Físico (apenas se módulo ativo) */}
             {modules.scannerFichas && (
               <Button
@@ -99,8 +77,8 @@ export const Header: React.FC<HeaderProps> = ({
               </Button>
             )}
 
-            {/* Alternador de Perfil / RBAC */}
-            <RoleSwitcher />
+            {/* Perfil do Profissional Solo */}
+            <RoleSwitcher onOpenSettings={onOpenSettings} />
 
             {/* Botão Sair do Sistema */}
             <Button

@@ -5,18 +5,21 @@ import { AuthProvider } from './context/AuthContext';
 import { DatabaseProvider } from './context/DatabaseContext';
 import { ToastProvider } from './context/ToastContext';
 import { SaasPlanProvider } from './context/SaasPlanContext';
+import { ThemeProvider } from './context/ThemeContext';
 import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <SaasPlanProvider>
-      <AuthProvider>
-        <DatabaseProvider>
-          <ToastProvider>
-            <App />
-          </ToastProvider>
-        </DatabaseProvider>
-      </AuthProvider>
-    </SaasPlanProvider>
+    <ThemeProvider>
+      <SaasPlanProvider>
+        <AuthProvider>
+          <DatabaseProvider>
+            <ToastProvider>
+              <App />
+            </ToastProvider>
+          </DatabaseProvider>
+        </AuthProvider>
+      </SaasPlanProvider>
+    </ThemeProvider>
   </React.StrictMode>
 );

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { Stethoscope, HeartHandshake, UserCheck, Shield, Sparkles, ArrowRight, Lock, Mail } from 'lucide-react';
+import { Stethoscope, Sparkles, ArrowRight, Lock, Mail } from 'lucide-react';
 import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
 
@@ -9,70 +9,15 @@ interface ClinicLoginProps {
 }
 
 export const ClinicLogin: React.FC<ClinicLoginProps> = ({ onLoginSuccess }) => {
-  const { availableUsers, login } = useAuth();
-  const [selectedUserId, setSelectedUserId] = useState<string>(availableUsers[0]?.id || '');
-  const [email, setEmail] = useState('');
+  const { professionalProfile, login } = useAuth();
   const [password, setPassword] = useState('');
-  const [useManualCredentials, setUseManualCredentials] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [email, setEmail] = useState(professionalProfile.email || '');
+  const [isManual, setIsManual] = useState(false);
 
-  const getRoleIcon = (role: string) => {
-    switch (role) {
-      case 'medico':
-        return <Stethoscope className="w-5 h-5 text-brand-600" />;
-      case 'psicologo':
-        return <HeartHandshake className="w-5 h-5 text-purple-600" />;
-      case 'recepcao':
-        return <UserCheck className="w-5 h-5 text-blue-600" />;
-      case 'admin':
-        return <Shield className="w-5 h-5 text-amber-600" />;
-      default:
-        return <UserCheck className="w-5 h-5 text-slate-600" />;
-    }
-  };
-
-  const getRoleBadge = (role: string) => {
-    switch (role) {
-      case 'medico':
-        return <Badge variant="brand">Médico</Badge>;
-      case 'psicologo':
-        return <Badge variant="purple">Psicólogo</Badge>;
-      case 'recepcao':
-        return <Badge variant="info">Recepção</Badge>;
-      case 'admin':
-        return <Badge variant="warning">Administrador</Badge>;
-      default:
-        return null;
-    }
-  };
-
-  const handleQuickLogin = (userId: string) => {
-    login(userId);
+  const handleLogin = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    login();
     if (onLoginSuccess) onLoginSuccess();
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-
-    if (useManualCredentials) {
-      const user = availableUsers.find(
-        (u) => u.email.toLowerCase() === email.trim().toLowerCase()
-      );
-      if (user) {
-        login(user.id);
-        if (onLoginSuccess) onLoginSuccess();
-      } else {
-        // Se digitou algo desconhecido, entra como o selecionado ou admin
-        login(selectedUserId || availableUsers[0].id);
-        if (onLoginSuccess) onLoginSuccess();
-      }
-    } else {
-      if (selectedUserId) {
-        login(selectedUserId);
-        if (onLoginSuccess) onLoginSuccess();
-      }
-    }
   };
 
   return (
@@ -86,101 +31,67 @@ export const ClinicLogin: React.FC<ClinicLoginProps> = ({ onLoginSuccess }) => {
           </div>
           <h1 className="text-2xl font-black text-white tracking-tight">NexAi-PSICO</h1>
           <p className="text-xs text-slate-400">
-            Acesso Clínico Integrado
+            Acesso ao Consultório
           </p>
         </div>
 
-        {/* Alternância de Modo */}
-        <div className="flex rounded-xl bg-slate-900 p-1 border border-slate-800 text-xs font-semibold">
-          <button
-            type="button"
-            onClick={() => setUseManualCredentials(false)}
-            className={`flex-1 py-2 rounded-lg transition-all ${
-              !useManualCredentials
-                ? 'bg-brand-600 text-white shadow'
-                : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            Perfis Clínicos
-          </button>
-          <button
-            type="button"
-            onClick={() => setUseManualCredentials(true)}
-            className={`flex-1 py-2 rounded-lg transition-all ${
-              useManualCredentials
-                ? 'bg-brand-600 text-white shadow'
-                : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            Credenciais
-          </button>
-        </div>
-
-        {error && (
-          <div className="p-3 bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs rounded-xl">
-            {error}
-          </div>
-        )}
-
-        {/* Modo 1: Seleção Direta de Perfil Clínico */}
-        {!useManualCredentials ? (
-          <div className="space-y-2.5">
-            <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block px-1">
-              Selecione seu Perfil
-            </span>
-            {availableUsers.map((user) => {
-              const isSelected = selectedUserId === user.id;
-              return (
-                <div
-                  key={user.id}
-                  onClick={() => setSelectedUserId(user.id)}
-                  className={`w-full flex items-center justify-between p-3 rounded-2xl border cursor-pointer transition-all ${
-                    isSelected
-                      ? 'bg-brand-950/40 border-brand-500/60 shadow-md shadow-brand-500/10'
-                      : 'bg-slate-900/60 border-slate-800/80 hover:bg-slate-900 hover:border-slate-700'
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center flex-shrink-0">
-                      {getRoleIcon(user.role)}
-                    </div>
-                    <div className="text-left">
-                      <div className="text-xs font-bold text-white">{user.nome}</div>
-                      <div className="text-[10px] text-slate-400">
-                        {user.registroProfissional || (user.role === 'recepcao' ? 'Recepção' : 'Gestão Global')}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {getRoleBadge(user.role)}
-                  </div>
+        {!isManual ? (
+          /* Modo Direto: Acesso do Profissional Solo */
+          <div className="space-y-4">
+            <div className="p-4 rounded-2xl border border-brand-500/40 bg-brand-950/30 space-y-3">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-xl bg-brand-500/20 text-brand-400 flex items-center justify-center flex-shrink-0">
+                  <Stethoscope className="w-6 h-6" />
                 </div>
-              );
-            })}
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-sm font-bold text-white">{professionalProfile.nome}</h3>
+                    <Badge variant="brand" size="sm">Profissional</Badge>
+                  </div>
+                  <p className="text-xs text-slate-300 mt-0.5">{professionalProfile.especialidade}</p>
+                  <p className="text-[10px] text-slate-400 font-mono">{professionalProfile.registroProfissional}</p>
+                </div>
+              </div>
+              {professionalProfile.nomeConsultorio && (
+                <p className="text-[11px] text-brand-300/80 border-t border-brand-500/20 pt-2">
+                  {professionalProfile.nomeConsultorio}
+                </p>
+              )}
+            </div>
 
             <Button
               variant="primary"
               size="lg"
-              onClick={() => handleQuickLogin(selectedUserId)}
-              className="w-full mt-4 justify-center bg-brand-500 hover:bg-brand-400 text-slate-950 font-bold"
+              onClick={() => handleLogin()}
+              className="w-full justify-center bg-brand-500 hover:bg-brand-400 text-slate-950 font-bold"
               rightIcon={<ArrowRight className="w-4 h-4" />}
             >
               Entrar
             </Button>
+
+            <div className="text-center pt-1">
+              <button
+                type="button"
+                onClick={() => setIsManual(true)}
+                className="text-[11px] text-slate-400 hover:text-slate-200 transition-colors"
+              >
+                Entrar com email e senha
+              </button>
+            </div>
           </div>
         ) : (
-          /* Modo 2: Credenciais Manuais */
-          <form onSubmit={handleSubmit} className="space-y-4">
+          /* Modo Manual com Email e Senha */
+          <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-1">
-              <label className="text-xs font-medium text-slate-300">Email Profissional</label>
+              <label className="text-xs font-medium text-slate-300">Email</label>
               <div className="relative">
                 <Mail className="w-4 h-4 text-slate-500 absolute left-3 top-3.5" />
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="medico@nexai.com"
-                  className="w-full pl-9 pr-4 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-white text-xs focus:outline-none focus:border-brand-500 transition-colors"
+                  placeholder="profissional@consultorio.com"
+                  className="w-full pl-9 pr-4 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-white text-xs focus:outline-none focus:border-brand-500"
                 />
               </div>
             </div>
@@ -194,7 +105,7 @@ export const ClinicLogin: React.FC<ClinicLoginProps> = ({ onLoginSuccess }) => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full pl-9 pr-4 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-white text-xs focus:outline-none focus:border-brand-500 transition-colors"
+                  className="w-full pl-9 pr-4 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-white text-xs focus:outline-none focus:border-brand-500"
                 />
               </div>
             </div>
@@ -208,6 +119,16 @@ export const ClinicLogin: React.FC<ClinicLoginProps> = ({ onLoginSuccess }) => {
             >
               Entrar
             </Button>
+
+            <div className="text-center pt-1">
+              <button
+                type="button"
+                onClick={() => setIsManual(false)}
+                className="text-[11px] text-slate-400 hover:text-slate-200 transition-colors"
+              >
+                Voltar ao perfil do consultório
+              </button>
+            </div>
           </form>
         )}
 
@@ -221,4 +142,3 @@ export const ClinicLogin: React.FC<ClinicLoginProps> = ({ onLoginSuccess }) => {
     </div>
   );
 };
-

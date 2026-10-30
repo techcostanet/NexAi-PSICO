@@ -9,17 +9,17 @@ export default {
     extend: {
       colors: {
         brand: {
-          50: '#f0fdf9',
-          100: '#ccfbef',
-          200: '#99f6df',
-          300: '#5eead4',
-          400: '#2dd4bf',
-          500: '#14b8a6', // Teal médico acolhedor
-          600: '#0d9488',
-          700: '#0f766e',
-          800: '#115e59',
-          900: '#134e4a',
-          950: '#042f2e',
+          50: 'rgb(var(--brand-50) / <alpha-value>)',
+          100: 'rgb(var(--brand-100) / <alpha-value>)',
+          200: 'rgb(var(--brand-200) / <alpha-value>)',
+          300: 'rgb(var(--brand-300) / <alpha-value>)',
+          400: 'rgb(var(--brand-400) / <alpha-value>)',
+          500: 'rgb(var(--brand-500) / <alpha-value>)',
+          600: 'rgb(var(--brand-600) / <alpha-value>)',
+          700: 'rgb(var(--brand-700) / <alpha-value>)',
+          800: 'rgb(var(--brand-800) / <alpha-value>)',
+          900: 'rgb(var(--brand-900) / <alpha-value>)',
+          950: 'rgb(var(--brand-950) / <alpha-value>)',
         },
         navy: {
           50: '#f4f6fb',
@@ -30,7 +30,7 @@ export default {
           500: '#4874b8',
           600: '#345a9d',
           700: '#2b4780',
-          800: '#1e325c', // Azul marinho psiquiatria/psicologia
+          800: '#1e325c',
           900: '#15223e',
           950: '#0d1527',
         }

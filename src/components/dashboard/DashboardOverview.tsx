@@ -11,10 +11,8 @@ import {
   Camera,
   DollarSign,
   Clock,
-  Sparkles,
   ArrowRight,
   FolderSync,
-  Activity,
   MessageCircle,
 } from 'lucide-react';
 import { gerarLinkWhatsAppLembrete } from '../../services/calendarService';
@@ -33,7 +31,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
   onOpenConsultation,
 }) => {
   const { pacientes, agendamentos, transacoes, prontuarios } = useDatabase();
-  const { currentUser, isProfissionalSaude } = useAuth();
+  const { isProfissionalSaude } = useAuth();
   const { modules } = useSaasPlan();
 
   // Métricas
@@ -51,55 +49,6 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
   return (
     <div className="space-y-6">
       
-      {/* Banner de Boas-Vindas */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-brand-900 via-navy-900 to-slate-900 text-white p-6 sm:p-8 shadow-xl">
-        <div className="relative z-10 max-w-2xl space-y-3">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-500/20 border border-brand-400/30 text-brand-300 text-xs font-semibold">
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>Ecossistema Google Cloud</span>
-          </div>
-
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-            Olá, {currentUser.nome.split(' ')[0]}! 👋
-          </h1>
-
-          <p className="text-slate-300 text-xs sm:text-sm leading-relaxed">
-            {isProfissionalSaude
-              ? 'Pronto para atender? Acesse a agenda do dia, consulte prontuários e registre as evoluções clínicas.'
-              : 'Painel da Recepção: organize a sala de espera e envie confirmações de atendimento no WhatsApp.'}
-          </p>
-
-          <div className="pt-2 flex flex-wrap items-center gap-3">
-            {isProfissionalSaude && modules.consultaIa && (
-              <Button
-                variant="primary"
-                size="md"
-                leftIcon={<Activity className="w-4 h-4" />}
-                onClick={onOpenConsultation}
-                className="bg-brand-500 hover:bg-brand-400 text-slate-950 font-bold shadow-lg shadow-brand-500/30"
-              >
-                Consulta IA
-              </Button>
-            )}
-
-            {modules.scannerFichas && (
-              <Button
-                variant="outline"
-                size="md"
-                leftIcon={<Camera className="w-4 h-4 text-brand-300" />}
-                onClick={onOpenScanner}
-                className="bg-white/10 border-white/20 text-white hover:bg-white/20"
-              >
-                Scanner Físico
-              </Button>
-            )}
-          </div>
-        </div>
-
-        {/* Fundo decorativo sutil */}
-        <div className="absolute -right-10 -bottom-10 w-64 h-64 bg-brand-500/10 rounded-full blur-3xl pointer-events-none" />
-      </div>
-
       {/* Grid de Métricas Principais */}
       <div className={`grid ${modules.scannerFichas ? 'grid-cols-2 lg:grid-cols-4' : 'grid-cols-1 sm:grid-cols-3'} gap-4`}>
         
