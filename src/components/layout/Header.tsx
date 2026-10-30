@@ -1,9 +1,10 @@
 import React from 'react';
-import { Camera, Brain, Activity, Sparkles, FolderSync, Heart, ShieldCheck, Lock } from 'lucide-react';
+import { Camera, Brain, Activity, Sparkles, FolderSync, Heart, LogOut } from 'lucide-react';
 import { RoleSwitcher } from './RoleSwitcher';
 import { Button } from '../ui/Button';
 import { APP_VERSION } from '../../version';
 import { useSaasPlan } from '../../context/SaasPlanContext';
+import { useAuth } from '../../context/AuthContext';
 
 interface HeaderProps {
   onOpenScanner: () => void;
@@ -18,7 +19,8 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenSettings,
   onNavigate,
 }) => {
-  const { modules, openUpsellModal } = useSaasPlan();
+  const { modules } = useSaasPlan();
+  const { logout } = useAuth();
 
   return (
     <header className="sticky top-0 z-30 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800 transition-colors">
@@ -49,16 +51,6 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Ações Rápidas de Topo */}
           <div className="flex items-center gap-2 sm:gap-3">
             
-            {/* Botão Painel SaaS Master */}
-            <button
-              onClick={() => onNavigate('saas_admin')}
-              className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-900 hover:bg-slate-800 border border-amber-500/30 text-[11px] font-semibold text-amber-300 transition-colors shadow-sm"
-              title="Painel de Administração SaaS Master"
-            >
-              <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
-              <span>Painel SaaS</span>
-            </button>
-
             {/* Status Sincronização Google Cloud */}
             <button
               onClick={onOpenSettings}
@@ -69,64 +61,58 @@ export const Header: React.FC<HeaderProps> = ({
               <span>Google Cloud</span>
             </button>
 
-            {/* Botão Acesso Rápido ao Portal do Paciente */}
-            <button
-              onClick={() => {
-                if (modules.diarioHumor) {
-                  onNavigate('portal_paciente');
-                } else {
-                  openUpsellModal('diarioHumor');
-                }
-              }}
-              className="hidden xl:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-teal-50 hover:bg-teal-100 dark:bg-teal-950/40 dark:hover:bg-teal-900/60 border border-teal-200 dark:border-teal-800 text-[11px] font-semibold text-teal-700 dark:text-teal-300 transition-colors"
-              title="Acessar Diário do Paciente"
-            >
-              <Heart className="w-3.5 h-3.5 text-teal-600 animate-pulse" />
-              <span>Diário do Paciente</span>
-            </button>
+            {/* Botão Acesso Rápido ao Portal do Paciente (apenas se módulo ativo) */}
+            {modules.diarioHumor && (
+              <button
+                onClick={() => onNavigate('portal_paciente')}
+                className="hidden xl:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-teal-50 hover:bg-teal-100 dark:bg-teal-950/40 dark:hover:bg-teal-900/60 border border-teal-200 dark:border-teal-800 text-[11px] font-semibold text-teal-700 dark:text-teal-300 transition-colors"
+                title="Acessar Diário do Paciente"
+              >
+                <Heart className="w-3.5 h-3.5 text-teal-600 animate-pulse" />
+                <span>Diário do Paciente</span>
+              </button>
+            )}
 
-            {/* Botão Digitalizar Prontuário Físico (Modular) */}
-            <Button
-              variant="outline"
-              size="sm"
-              leftIcon={modules.scannerFichas ? <Camera className="w-4 h-4 text-brand-600" /> : <Lock className="w-4 h-4 text-amber-600" />}
-              onClick={() => {
-                if (modules.scannerFichas) {
-                  onOpenScanner();
-                } else {
-                  openUpsellModal('scannerFichas');
-                }
-              }}
-              className="hidden sm:inline-flex border-brand-200 hover:border-brand-300 hover:bg-brand-50/50 text-brand-800"
-            >
-              <span>Scanner Físico</span>
-              {!modules.scannerFichas && (
-                <span className="ml-1 text-[9px] bg-amber-100 text-amber-800 px-1 py-0.5 rounded font-bold">Opcional</span>
-              )}
-            </Button>
+            {/* Botão Digitalizar Prontuário Físico (apenas se módulo ativo) */}
+            {modules.scannerFichas && (
+              <Button
+                variant="outline"
+                size="sm"
+                leftIcon={<Camera className="w-4 h-4 text-brand-600" />}
+                onClick={onOpenScanner}
+                className="hidden sm:inline-flex border-brand-200 hover:border-brand-300 hover:bg-brand-50/50 text-brand-800"
+              >
+                <span>Scanner Físico</span>
+              </Button>
+            )}
 
-            {/* Botão Gravar Consulta IA (Modular) */}
-            <Button
-              variant="primary"
-              size="sm"
-              leftIcon={modules.consultaIa ? <Activity className="w-4 h-4" /> : <Lock className="w-4 h-4 text-amber-200" />}
-              onClick={() => {
-                if (modules.consultaIa) {
-                  onOpenConsultation();
-                } else {
-                  openUpsellModal('consultaIa');
-                }
-              }}
-              className={`hidden sm:inline-flex ${!modules.consultaIa ? 'bg-slate-700 hover:bg-slate-600 text-slate-100' : ''}`}
-            >
-              <span>Consulta IA</span>
-              {!modules.consultaIa && (
-                <span className="ml-1 text-[9px] bg-amber-500/20 text-amber-300 px-1 py-0.5 rounded font-bold">Opcional</span>
-              )}
-            </Button>
+            {/* Botão Gravar Consulta IA (apenas se módulo ativo) */}
+            {modules.consultaIa && (
+              <Button
+                variant="primary"
+                size="sm"
+                leftIcon={<Activity className="w-4 h-4" />}
+                onClick={onOpenConsultation}
+                className="hidden sm:inline-flex"
+              >
+                <span>Consulta IA</span>
+              </Button>
+            )}
 
             {/* Alternador de Perfil / RBAC */}
             <RoleSwitcher />
+
+            {/* Botão Sair do Sistema */}
+            <Button
+              variant="outline"
+              size="sm"
+              leftIcon={<LogOut className="w-3.5 h-3.5 text-rose-500" />}
+              onClick={logout}
+              className="border-slate-200 dark:border-slate-700 hover:bg-rose-50 dark:hover:bg-rose-950/30 hover:border-rose-300 dark:hover:border-rose-800 text-slate-700 dark:text-slate-200 hover:text-rose-600 transition-colors"
+              title="Sair do sistema e voltar para tela de login"
+            >
+              <span>Sair</span>
+            </Button>
           </div>
 
         </div>

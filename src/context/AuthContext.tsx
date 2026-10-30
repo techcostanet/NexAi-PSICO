@@ -5,6 +5,9 @@ import { INITIAL_USERS } from '../services/mockData';
 interface AuthContextType {
   currentUser: UserProfile;
   availableUsers: UserProfile[];
+  isAuthenticated: boolean;
+  login: (userId: string) => void;
+  logout: () => void;
   switchUser: (userId: string) => void;
   switchRole: (role: UserRole) => void;
   isProfissionalSaude: boolean;
@@ -16,6 +19,10 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
+    return localStorage.getItem('nexai_clinic_auth') === 'true';
+  });
+
   const [currentUser, setCurrentUser] = useState<UserProfile>(() => {
     const saved = localStorage.getItem('nexai_current_user');
     if (saved) {
@@ -31,6 +38,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     localStorage.setItem('nexai_current_user', JSON.stringify(currentUser));
   }, [currentUser]);
+
+  useEffect(() => {
+    localStorage.setItem('nexai_clinic_auth', isAuthenticated ? 'true' : 'false');
+  }, [isAuthenticated]);
+
+  const login = (userId: string) => {
+    const user = INITIAL_USERS.find(u => u.id === userId);
+    if (user) {
+      setCurrentUser(user);
+    }
+    setIsAuthenticated(true);
+  };
+
+  const logout = () => {
+    setIsAuthenticated(false);
+  };
 
   const switchUser = (userId: string) => {
     const user = INITIAL_USERS.find(u => u.id === userId);
@@ -56,6 +79,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       value={{
         currentUser,
         availableUsers: INITIAL_USERS,
+        isAuthenticated,
+        login,
+        logout,
         switchUser,
         switchRole,
         isProfissionalSaude,

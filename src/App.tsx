@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from './context/AuthContext';
 import { useDatabase } from './context/DatabaseContext';
 import { useSaasPlan } from './context/SaasPlanContext';
+import { ClinicLogin } from './components/auth/ClinicLogin';
 import { Header } from './components/layout/Header';
 import { Navigation } from './components/layout/Navigation';
 import { MobileBottomBar } from './components/layout/MobileBottomBar';
@@ -16,20 +17,13 @@ import { GoogleIntegrationsModal } from './components/settings/GoogleIntegration
 import { PatientPortalContainer } from './components/patient-portal/PatientPortalContainer';
 import { SaasAdminLogin } from './components/saas-admin/SaasAdminLogin';
 import { SaasAdminDashboard } from './components/saas-admin/SaasAdminDashboard';
-import { ModuleUpsellModal } from './components/saas-admin/ModuleUpsellModal';
-import { ArrowLeft, Lock, Camera } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { Button } from './components/ui/Button';
 
 export const App: React.FC = () => {
-  const { canViewClinicalData } = useAuth();
+  const { isAuthenticated } = useAuth();
   const { pacientes, obterProntuariosDoPaciente } = useDatabase();
-  const {
-    modules,
-    isSaasAdmin,
-    upsellModalModule,
-    openUpsellModal,
-    closeUpsellModal,
-  } = useSaasPlan();
+  const { modules, isSaasAdmin } = useSaasPlan();
 
   const [currentView, setCurrentView] = useState<string>(() => {
     const params = new URLSearchParams(window.location.search);
@@ -48,6 +42,20 @@ export const App: React.FC = () => {
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [activeConsultationPacienteId, setActiveConsultationPacienteId] = useState<string | undefined>(undefined);
 
+  // Redireciona caso o usuário tente acessar uma tela cujo módulo foi desativado no SaaS
+  useEffect(() => {
+    if (currentView === 'scanner' && !modules.scannerFichas) {
+      setCurrentView('dashboard');
+    }
+    if (currentView === 'portal_paciente' && !modules.diarioHumor) {
+      const params = new URLSearchParams(window.location.search);
+      // Se não veio direto pela URL de portal de paciente, volta ao dashboard
+      if (params.get('portal') !== 'true') {
+        setCurrentView('dashboard');
+      }
+    }
+  }, [currentView, modules]);
+
   // Handlers
   const handleSelectPaciente = (pacienteId: string) => {
     setSelectedPacienteId(pacienteId);
@@ -55,19 +63,13 @@ export const App: React.FC = () => {
   };
 
   const handleOpenScanner = (pacienteId?: string) => {
-    if (!modules.scannerFichas) {
-      openUpsellModal('scannerFichas');
-      return;
-    }
+    if (!modules.scannerFichas) return;
     if (pacienteId) setSelectedPacienteId(pacienteId);
     setCurrentView('scanner');
   };
 
   const handleOpenConsultation = (pacienteId?: string) => {
-    if (!modules.consultaIa) {
-      openUpsellModal('consultaIa');
-      return;
-    }
+    if (!modules.consultaIa) return;
     setActiveConsultationPacienteId(pacienteId || selectedPacienteId || undefined);
     setIsConsultationModalOpen(true);
   };
@@ -76,7 +78,7 @@ export const App: React.FC = () => {
     ? pacientes.find((p) => p.id === selectedPacienteId)
     : null;
 
-  // Se a rota for o Painel SaaS Master
+  // 1. Rota exclusiva do Painel SaaS Master (acessível apenas por ?admin=saas ou ?master=true)
   if (currentView === 'saas_admin') {
     if (isSaasAdmin) {
       return (
@@ -101,7 +103,7 @@ export const App: React.FC = () => {
     );
   }
 
-  // Se a rota for o Portal do Paciente (isolado como App PWA no celular)
+  // 2. Rota do Portal do Paciente (PWA isolado para o paciente final)
   if (currentView === 'portal_paciente') {
     return (
       <PatientPortalContainer
@@ -110,6 +112,17 @@ export const App: React.FC = () => {
           setCurrentView('dashboard');
         }}
         initialPacienteId={selectedPacienteId || undefined}
+      />
+    );
+  }
+
+  // 3. Autenticação Clínica: se não estiver autenticado, exibe a tela de login clínico
+  if (!isAuthenticated) {
+    return (
+      <ClinicLogin
+        onLoginSuccess={() => {
+          setCurrentView('dashboard');
+        }}
       />
     );
   }
@@ -144,7 +157,7 @@ export const App: React.FC = () => {
         {/* Área de Visualização Principal */}
         <main className="flex-1 p-4 sm:p-6 lg:p-8 pb-24 md:pb-8 overflow-y-auto max-w-full">
           
-          {/* 1. Visão Geral / Dashboard */}
+          {/* 1. Visão Geral */}
           {currentView === 'dashboard' && (
             <DashboardOverview
               onNavigate={setCurrentView}
@@ -171,31 +184,18 @@ export const App: React.FC = () => {
             />
           )}
 
-          {/* 4. Scanner de Fichas (Google Drive) */}
-          {currentView === 'scanner' && (
-            modules.scannerFichas ? (
-              <PhysicalChartScanner
-                initialPacienteId={selectedPacienteId || undefined}
-                onFinished={() => {
-                  if (selectedPacienteId) {
-                    setCurrentView('prontuario_detalhe');
-                  } else {
-                    setCurrentView('pacientes');
-                  }
-                }}
-              />
-            ) : (
-              <div className="p-8 text-center space-y-4 max-w-md mx-auto my-12 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm">
-                <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center mx-auto">
-                  <Camera className="w-6 h-6" />
-                </div>
-                <h3 className="text-base font-bold text-slate-900 dark:text-white">Módulo Scanner Não Habilitado</h3>
-                <p className="text-xs text-slate-500">Este módulo opcional não foi adquirido no plano atual da clínica.</p>
-                <Button variant="primary" size="sm" onClick={() => openUpsellModal('scannerFichas')}>
-                  Conhecer Módulo
-                </Button>
-              </div>
-            )
+          {/* 4. Scanner de Fichas (somente se módulo ativo) */}
+          {currentView === 'scanner' && modules.scannerFichas && (
+            <PhysicalChartScanner
+              initialPacienteId={selectedPacienteId || undefined}
+              onFinished={() => {
+                if (selectedPacienteId) {
+                  setCurrentView('prontuario_detalhe');
+                } else {
+                  setCurrentView('pacientes');
+                }
+              }}
+            />
           )}
 
           {/* 5. Detalhes do Prontuário / Timeline Clínica */}
@@ -274,17 +274,6 @@ export const App: React.FC = () => {
       <GoogleIntegrationsModal
         isOpen={isSettingsModalOpen}
         onClose={() => setIsSettingsModalOpen(false)}
-      />
-
-      {/* Modal de Módulo Opcional */}
-      <ModuleUpsellModal
-        isOpen={Boolean(upsellModalModule)}
-        onClose={closeUpsellModal}
-        moduleKey={upsellModalModule}
-        onGoToSaasAdmin={() => {
-          setSelectedPacienteId(null);
-          setCurrentView('saas_admin');
-        }}
       />
 
     </div>

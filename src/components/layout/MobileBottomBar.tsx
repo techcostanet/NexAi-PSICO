@@ -1,6 +1,7 @@
 import React from 'react';
-import { Calendar, Users, Mic, Camera, LayoutDashboard } from 'lucide-react';
+import { Calendar, Users, Mic, Camera, LayoutDashboard, FileText, Receipt } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useSaasPlan } from '../../context/SaasPlanContext';
 
 interface MobileBottomBarProps {
   currentView: string;
@@ -16,6 +17,17 @@ export const MobileBottomBar: React.FC<MobileBottomBarProps> = ({
   onOpenConsultation,
 }) => {
   const { canViewClinicalData } = useAuth();
+  const { modules } = useSaasPlan();
+
+  const hasCentralAction = (modules.consultaIa && canViewClinicalData) || modules.scannerFichas;
+
+  const handleCentralAction = () => {
+    if (modules.consultaIa && canViewClinicalData) {
+      onOpenConsultation();
+    } else if (modules.scannerFichas) {
+      onOpenScanner();
+    }
+  };
 
   return (
     <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-t border-slate-200/80 dark:border-slate-800 px-2 py-2 flex items-center justify-around">
@@ -42,16 +54,22 @@ export const MobileBottomBar: React.FC<MobileBottomBarProps> = ({
         <span className="text-[10px]">Agenda</span>
       </button>
 
-      {/* Botão Central de Ação Rápida (Gravar IA ou Scanner) */}
-      <div className="relative -top-5">
-        <button
-          onClick={canViewClinicalData ? onOpenConsultation : onOpenScanner}
-          className="w-13 h-13 p-3.5 rounded-full bg-gradient-to-tr from-brand-600 to-teal-400 text-white shadow-lg shadow-brand-500/40 flex items-center justify-center active:scale-95 transition-transform"
-          title={canViewClinicalData ? 'Gravar Consulta com IA' : 'Digitalizar Prontuário Antigo'}
-        >
-          {canViewClinicalData ? <Mic className="w-6 h-6" /> : <Camera className="w-6 h-6" />}
-        </button>
-      </div>
+      {/* Botão Central de Ação Rápida (apenas se módulo habilitado) */}
+      {hasCentralAction && (
+        <div className="relative -top-5">
+          <button
+            onClick={handleCentralAction}
+            className="w-13 h-13 p-3.5 rounded-full bg-gradient-to-tr from-brand-600 to-teal-400 text-white shadow-lg shadow-brand-500/40 flex items-center justify-center active:scale-95 transition-transform"
+            title={modules.consultaIa && canViewClinicalData ? 'Gravar Consulta com IA' : 'Digitalizar Prontuário'}
+          >
+            {modules.consultaIa && canViewClinicalData ? (
+              <Mic className="w-6 h-6" />
+            ) : (
+              <Camera className="w-6 h-6" />
+            )}
+          </button>
+        </div>
+      )}
 
       {/* Pacientes */}
       <button
@@ -64,16 +82,38 @@ export const MobileBottomBar: React.FC<MobileBottomBarProps> = ({
         <span className="text-[10px]">Pacientes</span>
       </button>
 
-      {/* Scanner Físico */}
-      <button
-        onClick={onOpenScanner}
-        className={`flex flex-col items-center gap-1 p-1.5 rounded-xl transition-colors ${
-          currentView === 'scanner' ? 'text-brand-600 dark:text-brand-400 font-bold' : 'text-slate-500'
-        }`}
-      >
-        <Camera className="w-5 h-5" />
-        <span className="text-[10px]">Scanner</span>
-      </button>
+      {/* Scanner Físico (se habilitado) ou Financeiro / Prontuários (se desabilitado) */}
+      {modules.scannerFichas ? (
+        <button
+          onClick={onOpenScanner}
+          className={`flex flex-col items-center gap-1 p-1.5 rounded-xl transition-colors ${
+            currentView === 'scanner' ? 'text-brand-600 dark:text-brand-400 font-bold' : 'text-slate-500'
+          }`}
+        >
+          <Camera className="w-5 h-5" />
+          <span className="text-[10px]">Scanner</span>
+        </button>
+      ) : canViewClinicalData ? (
+        <button
+          onClick={() => onNavigate('prontuarios')}
+          className={`flex flex-col items-center gap-1 p-1.5 rounded-xl transition-colors ${
+            currentView === 'prontuarios' ? 'text-brand-600 dark:text-brand-400 font-bold' : 'text-slate-500'
+          }`}
+        >
+          <FileText className="w-5 h-5" />
+          <span className="text-[10px]">Prontuários</span>
+        </button>
+      ) : (
+        <button
+          onClick={() => onNavigate('financeiro')}
+          className={`flex flex-col items-center gap-1 p-1.5 rounded-xl transition-colors ${
+            currentView === 'financeiro' ? 'text-brand-600 dark:text-brand-400 font-bold' : 'text-slate-500'
+          }`}
+        >
+          <Receipt className="w-5 h-5" />
+          <span className="text-[10px]">Financeiro</span>
+        </button>
+      )}
 
     </div>
   );

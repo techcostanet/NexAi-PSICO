@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useDatabase } from '../../context/DatabaseContext';
 import { useAuth } from '../../context/AuthContext';
+import { useSaasPlan } from '../../context/SaasPlanContext';
 import { useToast } from '../../context/ToastContext';
 import { Paciente } from '../../types';
 import { Card } from '../ui/Card';
@@ -12,13 +13,11 @@ import {
   Search,
   Plus,
   Phone,
-  FileText,
   Camera,
   Mic,
   FolderSync,
   AlertTriangle,
   ChevronRight,
-  ShieldAlert,
 } from 'lucide-react';
 
 interface PatientListProps {
@@ -34,6 +33,7 @@ export const PatientList: React.FC<PatientListProps> = ({
 }) => {
   const { pacientes, adicionarPaciente } = useDatabase();
   const { isProfissionalSaude, currentUser } = useAuth();
+  const { modules } = useSaasPlan();
   const { showToast } = useToast();
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -92,7 +92,7 @@ export const PatientList: React.FC<PatientListProps> = ({
     });
 
     setIsModalNovoPacienteOpen(false);
-    showToast('Paciente Cadastrado com Sucesso!', 'Ficha criada e pasta reservada no Google Drive.', 'success');
+    showToast('Paciente Cadastrado com Sucesso!', 'Ficha criada com sucesso.', 'success');
     onSelectPaciente(pacienteCriado.id);
   };
 
@@ -104,29 +104,26 @@ export const PatientList: React.FC<PatientListProps> = ({
 
     if (!matchesSearch) return false;
 
-    if (filterType === 'digitalizados') {
-      return (p.totalDocumentosScaneados || 0) > 0;
+    if (modules.scannerFichas) {
+      if (filterType === 'digitalizados') return p.totalDocumentosScaneados > 0;
+      if (filterType === 'pendentes') return p.totalDocumentosScaneados === 0;
     }
-    if (filterType === 'pendentes') {
-      return (p.totalDocumentosScaneados || 0) === 0;
-    }
+
     return true;
   });
 
   return (
     <div className="space-y-6">
       
-      {/* Topo do Módulo de Pacientes */}
+      {/* Cabeçalho da Lista */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2">
-            <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-              Pacientes Cadastrados
-            </h2>
-            <Badge variant="brand">{pacientes.length} Cadastrados</Badge>
-          </div>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-            Busca instantânea, histórico de consultas e prontuários digitalizados no Google Drive.
+          <h2 className="text-xl font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+            <Users className="w-5 h-5 text-brand-600" />
+            Cadastro de Pacientes
+          </h2>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+            Total de {pacientes.length} pacientes cadastrados na clínica.
           </p>
         </div>
 
@@ -153,32 +150,34 @@ export const PatientList: React.FC<PatientListProps> = ({
           />
         </div>
 
-        <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl text-xs">
-          <button
-            onClick={() => setFilterType('todos')}
-            className={`px-3 py-1.5 rounded-lg font-semibold transition-colors ${
-              filterType === 'todos' ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm' : 'text-slate-500'
-            }`}
-          >
-            Todos
-          </button>
-          <button
-            onClick={() => setFilterType('digitalizados')}
-            className={`px-3 py-1.5 rounded-lg font-semibold transition-colors ${
-              filterType === 'digitalizados' ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm' : 'text-slate-500'
-            }`}
-          >
-            Com Scan Drive
-          </button>
-          <button
-            onClick={() => setFilterType('pendentes')}
-            className={`px-3 py-1.5 rounded-lg font-semibold transition-colors ${
-              filterType === 'pendentes' ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm' : 'text-slate-500'
-            }`}
-          >
-            Pendente Scan
-          </button>
-        </div>
+        {modules.scannerFichas && (
+          <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl text-xs">
+            <button
+              onClick={() => setFilterType('todos')}
+              className={`px-3 py-1.5 rounded-lg font-semibold transition-colors ${
+                filterType === 'todos' ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm' : 'text-slate-500'
+              }`}
+            >
+              Todos
+            </button>
+            <button
+              onClick={() => setFilterType('digitalizados')}
+              className={`px-3 py-1.5 rounded-lg font-semibold transition-colors ${
+                filterType === 'digitalizados' ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm' : 'text-slate-500'
+              }`}
+            >
+              Com Scan Drive
+            </button>
+            <button
+              onClick={() => setFilterType('pendentes')}
+              className={`px-3 py-1.5 rounded-lg font-semibold transition-colors ${
+                filterType === 'pendentes' ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm' : 'text-slate-500'
+              }`}
+            >
+              Pendente Scan
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Lista de Pacientes */}
@@ -206,22 +205,24 @@ export const PatientList: React.FC<PatientListProps> = ({
                 </Badge>
               </div>
 
-              {/* Status do Passivo Físico no Google Drive */}
-              <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 text-xs flex items-center justify-between">
-                <div className="flex items-center gap-1.5">
-                  <FolderSync className="w-4 h-4 text-brand-600" />
-                  <span className="text-slate-600 dark:text-slate-300">
-                    {paciente.totalDocumentosScaneados > 0
-                      ? `${paciente.totalDocumentosScaneados} Prontuário(s) no Drive`
-                      : 'Ficha física ainda não escaneada'}
-                  </span>
+              {/* Status do Passivo Físico no Google Drive (se módulo ativo) */}
+              {modules.scannerFichas && (
+                <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 text-xs flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <FolderSync className="w-4 h-4 text-brand-600" />
+                    <span className="text-slate-600 dark:text-slate-300">
+                      {paciente.totalDocumentosScaneados > 0
+                        ? `${paciente.totalDocumentosScaneados} Prontuário(s) no Drive`
+                        : 'Ficha física ainda não escaneada'}
+                    </span>
+                  </div>
+                  {paciente.totalDocumentosScaneados > 0 ? (
+                    <Badge variant="brand" size="sm">Sincronizado</Badge>
+                  ) : (
+                    <Badge variant="warning" size="sm">Pendente</Badge>
+                  )}
                 </div>
-                {paciente.totalDocumentosScaneados > 0 ? (
-                  <Badge variant="brand" size="sm">Sincronizado</Badge>
-                ) : (
-                  <Badge variant="warning" size="sm">Pendente</Badge>
-                )}
-              </div>
+              )}
 
               {/* Alertas Médicos Rápidos */}
               {paciente.alertasMedicos && paciente.alertasMedicos.length > 0 && (
@@ -236,28 +237,30 @@ export const PatientList: React.FC<PatientListProps> = ({
             <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2">
               
               <div className="flex items-center gap-1">
-                {/* Botão Scanner */}
-                <button
-                  onClick={() => onOpenScannerForPaciente(paciente.id)}
-                  className="p-2 rounded-lg text-slate-500 hover:text-brand-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                  title="Digitalizar fichas antigas no Drive"
-                >
-                  <Camera className="w-4 h-4" />
-                </button>
+                {/* Botão Scanner (se ativo) */}
+                {modules.scannerFichas && (
+                  <button
+                    onClick={() => onOpenScannerForPaciente(paciente.id)}
+                    className="p-2 rounded-lg text-slate-500 hover:text-brand-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                    title="Digitalizar fichas no Drive"
+                  >
+                    <Camera className="w-4 h-4" />
+                  </button>
+                )}
 
-                {/* Botão Consulta IA (Apenas Médicos/Psicólogos) */}
-                {isProfissionalSaude && (
+                {/* Botão Consulta IA (se ativo e profissional de saúde) */}
+                {modules.consultaIa && isProfissionalSaude && (
                   <button
                     onClick={() => onOpenConsultationForPaciente(paciente.id)}
                     className="p-2 rounded-lg text-slate-500 hover:text-brand-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                    title="Iniciar Consulta com Áudio IA"
+                    title="Iniciar Consulta IA"
                   >
                     <Mic className="w-4 h-4" />
                   </button>
                 )}
               </div>
 
-              {/* Ver Timeline Completa */}
+              {/* Ver Prontuário */}
               <button
                 onClick={() => onSelectPaciente(paciente.id)}
                 className="inline-flex items-center gap-1 text-xs font-bold text-brand-600 hover:text-brand-700 py-1.5 px-2.5 rounded-lg hover:bg-brand-50 dark:hover:bg-brand-950/40 transition-colors"
@@ -265,125 +268,127 @@ export const PatientList: React.FC<PatientListProps> = ({
                 <span>Ver Prontuário</span>
                 <ChevronRight className="w-3.5 h-3.5" />
               </button>
-
             </div>
           </Card>
         ))}
       </div>
 
-      {/* Modal Novo Paciente */}
+      {/* Modal Cadastro de Novo Paciente */}
       <Modal
         isOpen={isModalNovoPacienteOpen}
         onClose={() => setIsModalNovoPacienteOpen(false)}
         title="Cadastrar Novo Paciente"
-        subtitle="Cadastro rápido com separação de sigilo LGPD"
       >
         <form onSubmit={handleCadastrarPaciente} className="space-y-4">
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-              Nome Completo *:
+          <div className="space-y-1">
+            <label className="text-xs font-medium text-slate-700 dark:text-slate-300">
+              Nome Completo *
             </label>
             <input
               type="text"
               required
               value={novoPaciente.nomeCompleto}
               onChange={(e) => setNovoPaciente({ ...novoPaciente, nomeCompleto: e.target.value })}
-              className="w-full px-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl"
-              placeholder="Ex: Beatriz Lima Prado"
+              placeholder="Ex: Mariana Albuquerque Santos"
+              className="w-full px-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                CPF *:
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-slate-700 dark:text-slate-300">
+                CPF *
               </label>
               <input
                 type="text"
                 required
                 value={novoPaciente.cpf}
                 onChange={(e) => setNovoPaciente({ ...novoPaciente, cpf: e.target.value })}
-                className="w-full px-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl"
                 placeholder="000.000.000-00"
+                className="w-full px-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl"
               />
             </div>
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                Data de Nascimento:
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-slate-700 dark:text-slate-300">
+                Nascimento
               </label>
               <input
                 type="date"
                 value={novoPaciente.dataNascimento}
                 onChange={(e) => setNovoPaciente({ ...novoPaciente, dataNascimento: e.target.value })}
-                className="w-full px-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl"
+                className="w-full px-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                Telefone (WhatsApp) *:
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-slate-700 dark:text-slate-300">
+                Telefone (WhatsApp) *
               </label>
               <input
                 type="text"
                 required
                 value={novoPaciente.telefone}
                 onChange={(e) => setNovoPaciente({ ...novoPaciente, telefone: e.target.value })}
-                className="w-full px-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl"
-                placeholder="+55 11 99999-9999"
+                placeholder="+55 11 9..."
+                className="w-full px-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl"
               />
             </div>
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                E-mail:
-              </label>
-              <input
-                type="email"
-                value={novoPaciente.email}
-                onChange={(e) => setNovoPaciente({ ...novoPaciente, email: e.target.value })}
-                className="w-full px-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl"
-                placeholder="paciente@email.com"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                Modalidade de Pagamento:
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-slate-700 dark:text-slate-300">
+                Gênero
               </label>
               <select
-                value={novoPaciente.convenioTipo}
-                onChange={(e) => setNovoPaciente({ ...novoPaciente, convenioTipo: e.target.value as any })}
-                className="w-full px-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl"
+                value={novoPaciente.genero}
+                onChange={(e) => setNovoPaciente({ ...novoPaciente, genero: e.target.value as any })}
+                className="w-full px-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl"
               >
-                <option value="particular">Particular</option>
-                <option value="convenio">Convênio Médico</option>
+                <option value="F">Feminino</option>
+                <option value="M">Masculino</option>
+                <option value="Outro">Outro</option>
+                <option value="NaoInformado">Não Informar</option>
               </select>
             </div>
-            {novoPaciente.convenioTipo === 'convenio' && (
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                  Nome do Convênio:
-                </label>
-                <input
-                  type="text"
-                  placeholder="Ex: SulAmérica, Bradesco..."
-                  value={novoPaciente.nomeConvenio}
-                  onChange={(e) => setNovoPaciente({ ...novoPaciente, nomeConvenio: e.target.value })}
-                  className="w-full px-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl"
-                />
-              </div>
-            )}
           </div>
 
-          <div className="pt-3 flex justify-end gap-2">
-            <Button variant="outline" type="button" onClick={() => setIsModalNovoPacienteOpen(false)}>
+          <div className="space-y-1">
+            <label className="text-xs font-medium text-slate-700 dark:text-slate-300">
+              Contato de Emergência (Responsável)
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              <input
+                type="text"
+                placeholder="Nome do Responsável"
+                value={novoPaciente.contatoEmergenciaNome}
+                onChange={(e) => setNovoPaciente({ ...novoPaciente, contatoEmergenciaNome: e.target.value })}
+                className="w-full px-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl"
+              />
+              <input
+                type="text"
+                placeholder="Telefone"
+                value={novoPaciente.contatoEmergenciaTel}
+                onChange={(e) => setNovoPaciente({ ...novoPaciente, contatoEmergenciaTel: e.target.value })}
+                className="w-full px-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl"
+              />
+            </div>
+          </div>
+
+          <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setIsModalNovoPacienteOpen(false)}
+            >
               Cancelar
             </Button>
-            <Button variant="primary" type="submit">
-              Salvar Cadastro
+            <Button
+              type="submit"
+              variant="primary"
+              size="sm"
+            >
+              Salvar Paciente
             </Button>
           </div>
         </form>
