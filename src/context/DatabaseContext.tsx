@@ -55,31 +55,74 @@ interface DatabaseContextType {
 
 const DatabaseContext = createContext<DatabaseContextType | undefined>(undefined);
 
+export const NEXAI_DATA_VERSION_KEY = 'nexai_data_version_tag';
+export const NEXAI_CURRENT_DATA_VERSION = 'v1.0.13_15_pacientes_completo';
+
+function carregarColecao<T>(key: string, initialData: T[], minItemsExpected = 0): T[] {
+  try {
+    const versionSaved = localStorage.getItem(NEXAI_DATA_VERSION_KEY);
+    // Se a versão de dados for diferente ou não existir, substitui pelo mock atualizado
+    if (versionSaved !== NEXAI_CURRENT_DATA_VERSION) {
+      localStorage.setItem(NEXAI_DATA_VERSION_KEY, NEXAI_CURRENT_DATA_VERSION);
+      localStorage.setItem(key, JSON.stringify(initialData));
+      return initialData;
+    }
+    const saved = localStorage.getItem(key);
+    if (!saved) {
+      localStorage.setItem(key, JSON.stringify(initialData));
+      return initialData;
+    }
+    const parsed = JSON.parse(saved);
+    if (!Array.isArray(parsed) || (minItemsExpected > 0 && parsed.length < minItemsExpected)) {
+      localStorage.setItem(key, JSON.stringify(initialData));
+      return initialData;
+    }
+    return parsed;
+  } catch (err) {
+    console.error('Falha ao ler colecao ' + key + ':', err);
+    return initialData;
+  }
+}
+
 export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [pacientes, setPacientes] = useState<Paciente[]>(() => {
-    const saved = localStorage.getItem('nexai_pacientes');
-    return saved ? JSON.parse(saved) : INITIAL_PACIENTES;
-  });
+  const [pacientes, setPacientes] = useState<Paciente[]>(() =>
+    carregarColecao('nexai_pacientes', INITIAL_PACIENTES, 15)
+  );
 
-  const [prontuarios, setProntuarios] = useState<ProntuarioRegistro[]>(() => {
-    const saved = localStorage.getItem('nexai_prontuarios');
-    return saved ? JSON.parse(saved) : INITIAL_PRONTUARIOS;
-  });
+  const [prontuarios, setProntuarios] = useState<ProntuarioRegistro[]>(() =>
+    carregarColecao('nexai_prontuarios', INITIAL_PRONTUARIOS, 1)
+  );
 
-  const [agendamentos, setAgendamentos] = useState<Agendamento[]>(() => {
-    const saved = localStorage.getItem('nexai_agendamentos');
-    return saved ? JSON.parse(saved) : INITIAL_AGENDAMENTOS;
-  });
+  const [agendamentos, setAgendamentos] = useState<Agendamento[]>(() =>
+    carregarColecao('nexai_agendamentos', INITIAL_AGENDAMENTOS, 10)
+  );
 
-  const [transacoes, setTransacoes] = useState<TransacaoFinanceira[]>(() => {
-    const saved = localStorage.getItem('nexai_transacoes');
-    return saved ? JSON.parse(saved) : INITIAL_TRANSACOES;
-  });
+  const [transacoes, setTransacoes] = useState<TransacaoFinanceira[]>(() =>
+    carregarColecao('nexai_transacoes', INITIAL_TRANSACOES, 5)
+  );
 
-  const [registrosEmocoes, setRegistrosEmocoes] = useState<RegistroEmocao[]>(() => {
-    const saved = localStorage.getItem('nexai_emocoes');
-    return saved ? JSON.parse(saved) : INITIAL_EMOCOES;
-  });
+  const [registrosEmocoes, setRegistrosEmocoes] = useState<RegistroEmocao[]>(() =>
+    carregarColecao('nexai_emocoes', INITIAL_EMOCOES, 25)
+  );
+
+  // Verificação na montagem para garantir sincronização de navegadores antigos
+  useEffect(() => {
+    const versionSaved = localStorage.getItem(NEXAI_DATA_VERSION_KEY);
+    if (versionSaved !== NEXAI_CURRENT_DATA_VERSION || pacientes.length < 15) {
+      console.log('🔄 Sincronizando base com os 15 pacientes e histórico completo...');
+      localStorage.setItem(NEXAI_DATA_VERSION_KEY, NEXAI_CURRENT_DATA_VERSION);
+      setPacientes(INITIAL_PACIENTES);
+      setProntuarios(INITIAL_PRONTUARIOS);
+      setAgendamentos(INITIAL_AGENDAMENTOS);
+      setTransacoes(INITIAL_TRANSACOES);
+      setRegistrosEmocoes(INITIAL_EMOCOES);
+      localStorage.setItem('nexai_pacientes', JSON.stringify(INITIAL_PACIENTES));
+      localStorage.setItem('nexai_prontuarios', JSON.stringify(INITIAL_PRONTUARIOS));
+      localStorage.setItem('nexai_agendamentos', JSON.stringify(INITIAL_AGENDAMENTOS));
+      localStorage.setItem('nexai_transacoes', JSON.stringify(INITIAL_TRANSACOES));
+      localStorage.setItem('nexai_emocoes', JSON.stringify(INITIAL_EMOCOES));
+    }
+  }, []);
 
   // Salvar no localStorage sempre que houver modificações
   useEffect(() => {
@@ -313,16 +356,17 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   const restaurarDadosIniciais = () => {
+    localStorage.setItem(NEXAI_DATA_VERSION_KEY, NEXAI_CURRENT_DATA_VERSION);
     setPacientes(INITIAL_PACIENTES);
     setProntuarios(INITIAL_PRONTUARIOS);
     setAgendamentos(INITIAL_AGENDAMENTOS);
     setTransacoes(INITIAL_TRANSACOES);
     setRegistrosEmocoes(INITIAL_EMOCOES);
-    localStorage.removeItem('nexai_pacientes');
-    localStorage.removeItem('nexai_prontuarios');
-    localStorage.removeItem('nexai_agendamentos');
-    localStorage.removeItem('nexai_transacoes');
-    localStorage.removeItem('nexai_emocoes');
+    localStorage.setItem('nexai_pacientes', JSON.stringify(INITIAL_PACIENTES));
+    localStorage.setItem('nexai_prontuarios', JSON.stringify(INITIAL_PRONTUARIOS));
+    localStorage.setItem('nexai_agendamentos', JSON.stringify(INITIAL_AGENDAMENTOS));
+    localStorage.setItem('nexai_transacoes', JSON.stringify(INITIAL_TRANSACOES));
+    localStorage.setItem('nexai_emocoes', JSON.stringify(INITIAL_EMOCOES));
   };
 
   return (

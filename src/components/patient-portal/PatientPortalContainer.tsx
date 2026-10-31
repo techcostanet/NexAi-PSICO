@@ -24,6 +24,7 @@ export const PatientPortalContainer: React.FC<PatientPortalContainerProps> = ({
   const [pacienteAtivo, setPacienteAtivo] = useState<Paciente | null>(null);
   const [modoAtivo, setModoAtivo] = useState<ModoInterfaceEmocao>('adulto');
   const [showHistory, setShowHistory] = useState(false);
+  const [abaDemo, setAbaDemo] = useState<'kids' | 'teen' | 'adulto'>('kids');
 
   // Inicialização caso venha ID de fora
   useEffect(() => {
@@ -167,56 +168,96 @@ export const PatientPortalContainer: React.FC<PatientPortalContainerProps> = ({
               </button>
             </form>
 
-            {/* Demonstração Rápida para o Profissional / Testes */}
-            <div className="pt-4 border-t border-slate-100 dark:border-slate-800 space-y-2.5">
-              <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider text-center">
-                🧪 Teste Rápido (Selecione um Paciente):
-              </p>
-              <div className="grid grid-cols-1 gap-2">
+            {/* Demonstração Rápida para o Profissional / Testes - 15 Pacientes */}
+            <div className="pt-4 border-t border-slate-100 dark:border-slate-800 space-y-3">
+              <div className="flex items-center justify-between">
+                <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                  🧪 Teste Rápido (15 Pacientes Cadastrados):
+                </p>
+                <span className="text-[11px] font-bold text-brand-600 bg-brand-50 dark:bg-brand-950/50 px-2 py-0.5 rounded-md">
+                  {pacientes.length} Pacientes
+                </span>
+              </div>
+
+              {/* Seletor de Categoria de Diário */}
+              <div className="grid grid-cols-3 gap-1.5 p-1 bg-slate-100 dark:bg-slate-800/80 rounded-2xl">
                 <button
                   type="button"
-                  onClick={() => handleSelecionarDemo('pac_5')}
-                  className="p-2.5 rounded-xl border border-amber-300 bg-amber-50 dark:bg-amber-950/30 hover:bg-amber-100 text-left flex items-center justify-between transition-colors"
+                  onClick={() => setAbaDemo('kids')}
+                  className={`py-2 px-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
+                    abaDemo === 'kids'
+                      ? 'bg-amber-400 text-amber-950 shadow-sm'
+                      : 'text-slate-500 hover:text-slate-800 dark:hover:text-white'
+                  }`}
                 >
-                  <div className="flex items-center gap-2.5">
-                    <span className="text-2xl">🦁</span>
-                    <div>
-                      <p className="text-xs font-bold text-amber-950 dark:text-amber-200">Sophia Martins (8 anos)</p>
-                      <p className="text-[10px] text-amber-800 dark:text-amber-300">Modo Kids • Cores, bichinhos e ludoterapia</p>
-                    </div>
-                  </div>
-                  <span className="text-[10px] bg-amber-400 text-amber-950 font-bold px-2 py-0.5 rounded-md">Kids</span>
+                  <span>🦁</span>
+                  <span>Kids ({pacientes.filter(p => p.configuracaoDiario?.modoInterfaceDefault === 'kids').length})</span>
                 </button>
 
                 <button
                   type="button"
-                  onClick={() => handleSelecionarDemo('pac_2')}
-                  className="p-2.5 rounded-xl border border-indigo-300 bg-indigo-50 dark:bg-indigo-950/30 hover:bg-indigo-100 text-left flex items-center justify-between transition-colors"
+                  onClick={() => setAbaDemo('teen')}
+                  className={`py-2 px-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
+                    abaDemo === 'teen'
+                      ? 'bg-indigo-600 text-white shadow-sm'
+                      : 'text-slate-500 hover:text-slate-800 dark:hover:text-white'
+                  }`}
                 >
-                  <div className="flex items-center gap-2.5">
-                    <span className="text-2xl">⚡</span>
-                    <div>
-                      <p className="text-xs font-bold text-indigo-950 dark:text-indigo-200">Gabriel Menezes (TDAH)</p>
-                      <p className="text-[10px] text-indigo-800 dark:text-indigo-300">Modo Teen • Vibe jovem, dark e direto</p>
-                    </div>
-                  </div>
-                  <span className="text-[10px] bg-indigo-500 text-white font-bold px-2 py-0.5 rounded-md">Teen</span>
+                  <span>⚡</span>
+                  <span>Teen ({pacientes.filter(p => p.configuracaoDiario?.modoInterfaceDefault === 'teen').length})</span>
                 </button>
 
                 <button
                   type="button"
-                  onClick={() => handleSelecionarDemo('pac_1')}
-                  className="p-2.5 rounded-xl border border-teal-300 bg-teal-50 dark:bg-teal-950/30 hover:bg-teal-100 text-left flex items-center justify-between transition-colors"
+                  onClick={() => setAbaDemo('adulto')}
+                  className={`py-2 px-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
+                    abaDemo === 'adulto'
+                      ? 'bg-teal-600 text-white shadow-sm'
+                      : 'text-slate-500 hover:text-slate-800 dark:hover:text-white'
+                  }`}
                 >
-                  <div className="flex items-center gap-2.5">
-                    <span className="text-2xl">🌿</span>
-                    <div>
-                      <p className="text-xs font-bold text-teal-950 dark:text-teal-200">Helena Vasconcelos</p>
-                      <p className="text-[10px] text-teal-800 dark:text-teal-300">Modo Adulto • Gatilhos, sono e psicoterapia</p>
-                    </div>
-                  </div>
-                  <span className="text-[10px] bg-teal-600 text-white font-bold px-2 py-0.5 rounded-md">Adulto</span>
+                  <span>🌿</span>
+                  <span>Adulto ({pacientes.filter(p => p.configuracaoDiario?.modoInterfaceDefault === 'adulto').length})</span>
                 </button>
+              </div>
+
+              {/* Lista dos 5 Pacientes da Categoria Selecionada */}
+              <div className="space-y-1.5 max-h-64 overflow-y-auto pr-1">
+                {pacientes
+                  .filter((p) => p.configuracaoDiario?.modoInterfaceDefault === abaDemo)
+                  .map((p) => (
+                    <button
+                      key={p.id}
+                      type="button"
+                      onClick={() => handleSelecionarDemo(p.id)}
+                      className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 text-left flex items-center justify-between transition-colors group"
+                    >
+                      <div className="flex items-center gap-3">
+                        {p.fotoUrl ? (
+                          <img
+                            src={p.fotoUrl}
+                            alt={p.nomeCompleto}
+                            className="w-9 h-9 rounded-full object-cover border border-slate-200 dark:border-slate-700 shadow-sm"
+                          />
+                        ) : (
+                          <div className="w-9 h-9 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center font-bold text-xs text-slate-700 dark:text-slate-200">
+                            {p.nomeCompleto.slice(0, 2).toUpperCase()}
+                          </div>
+                        )}
+                        <div>
+                          <p className="text-xs font-bold text-slate-900 dark:text-white group-hover:text-brand-600 transition-colors">
+                            {p.nomeCompleto}
+                          </p>
+                          <p className="text-[10px] text-slate-500 dark:text-slate-400">
+                            {p.alertasMedicos?.[0] || 'Acompanhamento clínico'}
+                          </p>
+                        </div>
+                      </div>
+                      <span className="text-[10px] font-bold text-slate-400 group-hover:text-slate-700 dark:group-hover:text-slate-200">
+                        Abrir →
+                      </span>
+                    </button>
+                  ))}
               </div>
             </div>
 

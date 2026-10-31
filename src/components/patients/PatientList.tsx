@@ -26,6 +26,7 @@ import {
   Trash2,
   ShieldAlert,
   UserCheck,
+  RotateCcw,
 } from 'lucide-react';
 
 interface PatientListProps {
@@ -39,7 +40,8 @@ export const PatientList: React.FC<PatientListProps> = ({
   onOpenScannerForPaciente,
   onOpenConsultationForPaciente,
 }) => {
-  const { pacientes, adicionarPaciente, atualizarPaciente, removerPaciente } = useDatabase();
+  const { pacientes, adicionarPaciente, atualizarPaciente, removerPaciente, restaurarDadosIniciais } = useDatabase();
+  const [filtroDiario, setFiltroDiario] = useState<'todos' | 'kids' | 'teen' | 'adulto'>('todos');
   const { isProfissionalSaude, currentUser } = useAuth();
   const { modules } = useSaasPlan();
   const { showToast } = useToast();
@@ -276,6 +278,11 @@ export const PatientList: React.FC<PatientListProps> = ({
 
     if (!matchesSearch) return false;
 
+    if (filtroDiario !== 'todos') {
+      const modo = p.configuracaoDiario?.modoInterfaceDefault;
+      if (modo !== filtroDiario) return false;
+    }
+
     if (modules.scannerFichas) {
       if (filterType === 'digitalizados') return p.totalDocumentosScaneados > 0;
       if (filterType === 'pendentes') return p.totalDocumentosScaneados === 0;
@@ -351,6 +358,19 @@ export const PatientList: React.FC<PatientListProps> = ({
           </div>
 
           <Button
+            variant="outline"
+            size="sm"
+            leftIcon={<RotateCcw className="w-4 h-4 text-brand-600" />}
+            onClick={() => {
+              restaurarDadosIniciais();
+              showToast('Base Restaurada', '15 pacientes e histórico completo recarregados.', 'success');
+            }}
+            title="Recarregar base com os 15 pacientes e históricos de demonstração"
+          >
+            Restaurar Base
+          </Button>
+
+          <Button
             variant="primary"
             size="sm"
             leftIcon={<Plus className="w-4 h-4" />}
@@ -372,6 +392,42 @@ export const PatientList: React.FC<PatientListProps> = ({
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-10 pr-4 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-brand-500"
           />
+        </div>
+
+        {/* Filtro Rápido por Perfil de Diário */}
+        <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl text-xs">
+          <button
+            onClick={() => setFiltroDiario('todos')}
+            className={`px-2.5 py-1.5 rounded-lg font-semibold transition-colors ${
+              filtroDiario === 'todos' ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm' : 'text-slate-500'
+            }`}
+          >
+            Todos ({pacientes.length})
+          </button>
+          <button
+            onClick={() => setFiltroDiario('kids')}
+            className={`px-2.5 py-1.5 rounded-lg font-semibold transition-colors ${
+              filtroDiario === 'kids' ? 'bg-amber-100 text-amber-900 dark:bg-amber-900/50 dark:text-amber-200 shadow-sm' : 'text-slate-500'
+            }`}
+          >
+            Kids ({pacientes.filter(p => p.configuracaoDiario?.modoInterfaceDefault === 'kids').length})
+          </button>
+          <button
+            onClick={() => setFiltroDiario('teen')}
+            className={`px-2.5 py-1.5 rounded-lg font-semibold transition-colors ${
+              filtroDiario === 'teen' ? 'bg-indigo-100 text-indigo-900 dark:bg-indigo-900/50 dark:text-indigo-200 shadow-sm' : 'text-slate-500'
+            }`}
+          >
+            Teen ({pacientes.filter(p => p.configuracaoDiario?.modoInterfaceDefault === 'teen').length})
+          </button>
+          <button
+            onClick={() => setFiltroDiario('adulto')}
+            className={`px-2.5 py-1.5 rounded-lg font-semibold transition-colors ${
+              filtroDiario === 'adulto' ? 'bg-teal-100 text-teal-900 dark:bg-teal-900/50 dark:text-teal-200 shadow-sm' : 'text-slate-500'
+            }`}
+          >
+            Adulto ({pacientes.filter(p => p.configuracaoDiario?.modoInterfaceDefault === 'adulto').length})
+          </button>
         </div>
 
         {modules.scannerFichas && (
