@@ -5,8 +5,8 @@ export interface AppVersionInfo {
 }
 
 export const APP_VERSION_INFO: AppVersionInfo = {
-  version: '1.0.11',
-  buildDate: '2026-10-31T15:11:25.322Z',
+  version: '1.0.12',
+  buildDate: '2026-10-31T17:07:46.099Z',
   environment: 'production',
 };
 
