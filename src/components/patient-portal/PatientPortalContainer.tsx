@@ -5,6 +5,7 @@ import { KidsEmotionTracker } from './KidsEmotionTracker';
 import { TeenEmotionTracker } from './TeenEmotionTracker';
 import { AdultEmotionTracker } from './AdultEmotionTracker';
 import { InstallPwaBanner } from './InstallPwaBanner';
+import { BrainJournalIcon } from '../ui/AppLogo';
 import { Brain, Heart, Sparkles, Smartphone, ArrowLeft, LogOut, Lock, History, Smile, Zap, ShieldCheck } from 'lucide-react';
 
 interface PatientPortalContainerProps {

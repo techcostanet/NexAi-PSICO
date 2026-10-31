@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { Sparkles, ArrowRight, Lock, Mail, ShieldCheck, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { ArrowRight, Lock, Mail, ShieldCheck, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { Button } from '../ui/Button';
+import { BrainJournalIcon } from '../ui/AppLogo';
 import { APP_VERSION } from '../../version';
 
 interface ClinicLoginProps {
@@ -10,9 +11,9 @@ interface ClinicLoginProps {
 }
 
 export const ClinicLogin: React.FC<ClinicLoginProps> = ({ onLoginSuccess }) => {
-  const { professionalProfile, login } = useAuth();
-  const [email, setEmail] = useState(professionalProfile.email || 'dr.roberto@nexai.com');
-  const [password, setPassword] = useState('psico123');
+  const { login } = useAuth();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -26,11 +27,11 @@ export const ClinicLogin: React.FC<ClinicLoginProps> = ({ onLoginSuccess }) => {
     }
 
     if (!password.trim()) {
-      setErrorMessage('Informe sua senha.');
+      setErrorMessage('Informe sua senha de acesso.');
       return;
     }
 
-    // Autenticação direta do consultório
+    // Autenticação no consultório
     login();
     if (onLoginSuccess) {
       onLoginSuccess();
@@ -40,33 +41,41 @@ export const ClinicLogin: React.FC<ClinicLoginProps> = ({ onLoginSuccess }) => {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col justify-center items-center p-4 relative overflow-hidden font-sans">
       
-      {/* Brilho decorativo de fundo */}
+      {/* Brilho decorativo suave de fundo */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-brand-500/10 dark:bg-brand-500/5 rounded-full blur-3xl pointer-events-none" />
 
-      {/* Card Principal de Login - Limpo e Direto */}
+      {/* Card Principal de Login */}
       <div className="w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-3xl p-6 sm:p-8 shadow-xl shadow-slate-200/50 dark:shadow-none space-y-6 relative z-10">
         
-        {/* Topo com Logo e Versão Oficial */}
-        <div className="text-center space-y-2">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-tr from-brand-700 via-brand-600 to-teal-400 text-white shadow-lg shadow-brand-500/20 mb-1">
-            <Sparkles className="w-7 h-7" />
+        {/* Topo: Logomarca (Cérebro + Diário Aberto) e Nome Alinhados */}
+        <div className="text-center space-y-3">
+          
+          {/* Símbolo Oficial da Marca: Cérebro com Diário Aberto */}
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-tr from-brand-700 via-brand-600 to-teal-400 text-white shadow-xl shadow-brand-500/25 p-3.5 mx-auto transition-transform hover:scale-105">
+            <BrainJournalIcon />
           </div>
           
-          <div className="flex items-center justify-center gap-2">
+          {/* Nome do Sistema Perfeitamente Centralizado com a Logomarca */}
+          <div className="space-y-1">
             <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
               NexAi<span className="text-brand-600 dark:text-brand-400 font-extrabold">-PSICO</span>
             </h1>
-            <span 
-              className="text-[11px] font-mono font-bold px-2 py-0.5 rounded-full bg-brand-50 dark:bg-brand-950/50 text-brand-700 dark:text-brand-300 border border-brand-200 dark:border-brand-800 shadow-sm" 
-              title={`Versão atual do sistema: v${APP_VERSION}`}
-            >
-              v{APP_VERSION}
-            </span>
+
+            {/* Número da Versão Debaixo do Nome do Sistema */}
+            <div className="flex items-center justify-center gap-1.5 pt-0.5">
+              <span 
+                className="text-[11px] font-mono font-bold px-2 py-0.5 rounded-full bg-brand-50 dark:bg-brand-950/60 text-brand-700 dark:text-brand-300 border border-brand-200 dark:border-brand-800 shadow-2xs" 
+                title={`Versão ativa do sistema: v${APP_VERSION}`}
+              >
+                v{APP_VERSION}
+              </span>
+              <span className="text-xs text-slate-400 dark:text-slate-600">•</span>
+              <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                Acesso ao Consultório Clínico
+              </span>
+            </div>
           </div>
 
-          <p className="text-xs text-slate-500 dark:text-slate-400">
-            Acesso ao Consultório Clínico
-          </p>
         </div>
 
         {/* Mensagem de Erro se houver */}
@@ -77,58 +86,57 @@ export const ClinicLogin: React.FC<ClinicLoginProps> = ({ onLoginSuccess }) => {
           </div>
         )}
 
-        {/* Formulário Único de Autenticação */}
-        <form onSubmit={handleLogin} className="space-y-4">
-          <div className="space-y-1">
-            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block">
-              E-mail Profissional
-            </label>
-            <div className="relative">
-              <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="profissional@nexai.com"
-                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-brand-500 focus:outline-none"
-              />
+        {/* Formulário de Login */}
+        <form onSubmit={handleLogin} className="space-y-5">
+          
+          {/* Container com cor sutil diferenciada para os campos de usuário e senha */}
+          <div className="p-4 sm:p-5 bg-slate-50/80 dark:bg-slate-800/40 rounded-2xl border border-slate-200/80 dark:border-slate-800 space-y-4 shadow-inner">
+            
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block">
+                E-mail Profissional
+              </label>
+              <div className="relative">
+                <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="seu.email@consultorio.com"
+                  className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-brand-500 focus:outline-none shadow-2xs transition-all"
+                />
+              </div>
             </div>
-          </div>
 
-          <div className="space-y-1">
-            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block">
-              Senha de Acesso
-            </label>
-            <div className="relative">
-              <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
-              <input
-                type={showPassword ? 'text' : 'password'}
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full pl-10 pr-10 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-brand-500 focus:outline-none"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
-                tabIndex={-1}
-              >
-                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-              </button>
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block">
+                Senha de Acesso
+              </label>
+              <div className="relative">
+                <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Sua senha"
+                  className="w-full pl-10 pr-10 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-brand-500 focus:outline-none shadow-2xs transition-all"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+                  tabIndex={-1}
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
             </div>
+
           </div>
 
-          {/* Dica de Acesso Rápido Padronizado */}
-          <div className="p-2.5 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200/70 dark:border-slate-700/60 text-[11px] text-slate-500 dark:text-slate-400 flex items-center justify-between">
-            <span>Acesso padrão:</span>
-            <span className="font-mono text-slate-700 dark:text-slate-200 font-semibold">
-              dr.roberto@nexai.com / psico123
-            </span>
-          </div>
-
+          {/* Botão de Entrar */}
           <Button
             type="submit"
             variant="primary"
@@ -138,6 +146,7 @@ export const ClinicLogin: React.FC<ClinicLoginProps> = ({ onLoginSuccess }) => {
           >
             Entrar no Consultório
           </Button>
+
         </form>
 
         {/* Rodapé Seguro e Certificado */}

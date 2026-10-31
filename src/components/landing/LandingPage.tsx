@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Badge } from '../ui/Badge';
+import { AppLogo, BrainJournalIcon } from '../ui/AppLogo';
 import { APP_VERSION } from '../../version';
 
 interface LandingPageProps {
@@ -40,25 +41,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       <header className="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800 transition-colors">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
           
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-brand-700 via-brand-600 to-teal-400 flex items-center justify-center text-white shadow-md shadow-brand-500/20">
-              <Brain className="w-6 h-6 animate-pulse" />
-            </div>
-            <div>
-              <div className="flex items-center gap-1.5">
-                <span className="font-extrabold text-lg tracking-tight text-slate-900 dark:text-white">
-                  NexAi<span className="text-brand-600 dark:text-brand-400">-PSICO</span>
-                </span>
-                <span className="text-[10px] bg-brand-500/10 text-brand-700 dark:text-brand-300 font-bold px-1.5 py-0.5 rounded border border-brand-500/20">
-                  IA
-                </span>
-                <span className="text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-500 font-mono px-1.5 py-0.5 rounded">
-                  v{APP_VERSION}
-                </span>
-              </div>
-              <p className="text-[10px] text-slate-400 hidden sm:block">Gestão Clínica Inteligente</p>
-            </div>
-          </div>
+          {/* Logo Oficial: Cérebro com Diário Aberto */}
+          <AppLogo
+            size="md"
+            showText={true}
+            showVersionBelow={true}
+            subtitle="Gestão Clínica Inteligente"
+          />
 
           <nav className="hidden md:flex items-center gap-6 text-xs font-semibold text-slate-600 dark:text-slate-300">
             <a href="#diario" className="hover:text-brand-600 transition-colors">Diário de Emoções</a>
@@ -506,7 +495,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-6">
           
           <div className="flex items-center gap-2">
-            <Brain className="w-5 h-5 text-brand-600" />
+            <div className="w-6 h-6 text-brand-600">
+              <BrainJournalIcon />
+            </div>
             <span className="font-bold text-slate-900 dark:text-white">NexAi-PSICO</span>
             <span>•</span>
             <span>Versão v{APP_VERSION}</span>
